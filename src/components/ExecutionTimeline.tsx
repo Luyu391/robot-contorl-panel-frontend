@@ -10,7 +10,7 @@ export function ExecutionTimeline({ history }: ExecutionTimelineProps) {
 
   if (completed.length === 0) {
     return (
-      <div className="text-center text-xs text-slate-500 py-6">
+      <div className="text-center text-xs text-white/50 py-6">
         暂无执行记录
       </div>
     );
@@ -20,7 +20,7 @@ export function ExecutionTimeline({ history }: ExecutionTimelineProps) {
 
   return (
     <div className="space-y-2" role="region" aria-label="执行时间线">
-      <h3 className="text-sm font-semibold text-slate-700">最近执行</h3>
+      <h3 className="text-sm font-semibold text-white/80">最近执行</h3>
       <ol className="relative border-l border-white/30 ml-2 space-y-4">
         {recent.map((record, i) => (
           <motion.li
@@ -38,12 +38,12 @@ export function ExecutionTimeline({ history }: ExecutionTimelineProps) {
             />
             <div className="flex items-baseline justify-between gap-2">
               <p className="truncate text-sm font-medium text-ink-700">{record.rawText.slice(0, 24)}</p>
-              <time className="shrink-0 text-xs text-slate-500">
+              <time className="shrink-0 text-xs text-white/50">
                 {new Date(record.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
               </time>
             </div>
             {record.duration !== undefined && (
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs text-white/50">
                 耗时 {(record.duration / 1000).toFixed(1)}s ·{' '}
                 {record.status === 'completed' ? '成功' : '失败'}
               </p>

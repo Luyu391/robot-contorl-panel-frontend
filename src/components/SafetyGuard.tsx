@@ -82,16 +82,16 @@ export function SafetyGuard({ open, title = '安全确认', message, warnings = 
             className="relative z-10 w-full max-w-md rounded-card border border-white/30 glass p-6 shadow-lg"
           >
             <div className="flex items-start gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-50/50">
-                <AlertTriangle className="h-5 w-5 text-amber-600" aria-hidden="true" />
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20">
+                <AlertTriangle className="h-5 w-5 text-amber-300" aria-hidden="true" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-800">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-700">{message}</p>
+                <h3 className="text-lg font-semibold text-white/90">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/80">{message}</p>
                 {warnings.length > 0 && (
                   <ul className="mt-3 space-y-1.5">
                     {warnings.map((w, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-amber-600">
+                      <li key={i} className="flex items-start gap-2 text-sm text-amber-300">
                         <span className="mt-0.5 shrink-0">•</span>
                         <span>{w}</span>
                       </li>
@@ -104,7 +104,7 @@ export function SafetyGuard({ open, title = '安全确认', message, warnings = 
               <button
                 type="button"
                 onClick={onCancel}
-                className="glass-btn inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-slate-500"
+                className="glass-btn inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white/50"
               >
                 <X className="h-4 w-4" />
                 取消

@@ -10,27 +10,27 @@ interface CommandSuggestionsProps {
 }
 
 const categoryColors: Record<string, string> = {
-  '基础': 'border-l-slate-400',
-  '移动': 'border-l-blue-600',
-  '夹爪': 'border-l-emerald-600',
-  '复合': 'border-l-amber-600',
-  'LLM推荐': 'border-l-violet-600',
+  '基础': 'border-l-white/40',
+  '移动': 'border-l-blue-500',
+  '夹爪': 'border-l-emerald-500',
+  '复合': 'border-l-amber-500',
+  'LLM推荐': 'border-l-violet-500',
 };
 
 const categoryBg: Record<string, string> = {
-  '基础': 'bg-white/30 text-slate-600',
-  '移动': 'bg-indigo-50/50 text-indigo-600',
-  '夹爪': 'bg-emerald-50/50 text-emerald-600',
-  '复合': 'bg-amber-50/50 text-amber-600',
-  'LLM推荐': 'bg-violet-50/50 text-violet-600',
+  '基础': 'bg-white/[0.06] text-white/70',
+  '移动': 'bg-indigo-500/20 text-indigo-300',
+  '夹爪': 'bg-emerald-500/20 text-emerald-300',
+  '复合': 'bg-amber-500/20 text-amber-300',
+  'LLM推荐': 'bg-violet-500/20 text-violet-300',
 };
 
 export function CommandSuggestions({ suggestions, onSelect, onDismiss }: CommandSuggestionsProps) {
   if (suggestions.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-white/30 bg-white/20 backdrop-blur-sm py-10 text-center">
-        <Sparkles className="mx-auto h-6 w-6 text-slate-600" />
-        <p className="mt-2 text-sm text-slate-500">暂无建议，输入上下文将获得更多推荐</p>
+        <Sparkles className="mx-auto h-6 w-6 text-white/70" />
+        <p className="mt-2 text-sm text-white/50">暂无建议，输入上下文将获得更多推荐</p>
       </div>
     );
   }
@@ -63,8 +63,8 @@ interface SuggestionTileProps {
 }
 
 function SuggestionTile({ suggestion, index, onSelect, onDismiss }: SuggestionTileProps) {
-  const borderColor = categoryColors[suggestion.category] ?? 'border-l-slate-400';
-  const badgeStyle = categoryBg[suggestion.category] ?? 'bg-slate-100 text-slate-600';
+  const borderColor = categoryColors[suggestion.category] ?? 'border-l-white/40';
+  const badgeStyle = categoryBg[suggestion.category] ?? 'bg-white/10 text-white/70';
 
   const handleClick = useCallback(() => {
     onSelect(suggestion);
@@ -95,7 +95,7 @@ function SuggestionTile({ suggestion, index, onSelect, onDismiss }: SuggestionTi
           {suggestion.category}
         </span>
         <div className="flex items-center gap-1.5">
-          <span className="flex items-center gap-1 rounded-full bg-emerald-50/50 px-2 py-0.5 text-[11px] font-medium text-emerald-600">
+          <span className="flex items-center gap-1 rounded-full bg-emerald-50/50 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
             <Sparkles className="h-3 w-3" />
             {suggestion.confidence}%
           </span>
@@ -105,7 +105,7 @@ function SuggestionTile({ suggestion, index, onSelect, onDismiss }: SuggestionTi
               tabIndex={-1}
               onClick={handleDismiss}
               aria-label={`忽略建议：${suggestion.text}`}
-              className="glass-btn flex h-5 w-5 items-center justify-center p-0 text-slate-600 opacity-0 transition group-hover:opacity-100 hover:text-slate-500"
+              className="glass-btn flex h-5 w-5 items-center justify-center p-0 text-white/70 opacity-0 transition group-hover:opacity-100 hover:text-white/50"
             >
               <X className="h-3 w-3" />
             </span>
@@ -113,20 +113,20 @@ function SuggestionTile({ suggestion, index, onSelect, onDismiss }: SuggestionTi
         </div>
       </div>
 
-      <p className="text-sm font-semibold leading-5 text-slate-800">
+      <p className="text-sm font-semibold leading-5 text-white/90">
         {suggestion.text}
       </p>
 
-      <p className="text-xs leading-5 text-slate-500">
+      <p className="text-xs leading-5 text-white/50">
         {suggestion.description}
       </p>
 
       <div className="mt-auto flex w-full items-center justify-between pt-1">
-        <span className="flex items-center gap-1 text-[11px] text-slate-500">
+        <span className="flex items-center gap-1 text-[11px] text-white/50">
           <Zap className="h-3 w-3" />
           点击采纳
         </span>
-        <ArrowUpRight className="h-4 w-4 text-slate-600 transition group-hover:text-indigo-700 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        <ArrowUpRight className="h-4 w-4 text-white/70 transition group-hover:text-indigo-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </div>
     </motion.button>
   );

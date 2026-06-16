@@ -9,11 +9,11 @@ interface StatusIndicatorProps {
 }
 
 const statusConfig: Record<RobotStatus, { label: string; dotClass: string; pulseClass: string }> = {
-  idle: { label: '就绪', dotClass: 'bg-emerald-600', pulseClass: 'bg-emerald-600/20' },
-  moving: { label: '运动中', dotClass: 'bg-amber-600', pulseClass: 'bg-amber-600/20' },
-  executing: { label: '执行中', dotClass: 'bg-indigo-600', pulseClass: 'bg-indigo-600/20' },
-  error: { label: '异常', dotClass: 'bg-rose-600', pulseClass: 'bg-rose-600/20' },
-  offline: { label: '离线', dotClass: 'bg-slate-600', pulseClass: 'bg-slate-600/20' },
+  idle: { label: '就绪', dotClass: 'bg-emerald-500', pulseClass: 'bg-emerald-500/20' },
+  moving: { label: '运动中', dotClass: 'bg-amber-500', pulseClass: 'bg-amber-500/20' },
+  executing: { label: '执行中', dotClass: 'bg-indigo-500', pulseClass: 'bg-indigo-500/20' },
+  error: { label: '异常', dotClass: 'bg-rose-500', pulseClass: 'bg-rose-500/20' },
+  offline: { label: '离线', dotClass: 'bg-slate-500', pulseClass: 'bg-slate-500/20' },
 };
 
 export const StatusIndicator = memo(function StatusIndicator({ status, className = '' }: StatusIndicatorProps) {
@@ -51,7 +51,7 @@ export const StatusIndicator = memo(function StatusIndicator({ status, className
           transition={pulseTransition}
         />
       </span>
-      <span className="text-sm font-medium text-slate-700">{config.label}</span>
+      <span className="text-sm font-medium text-white/80">{config.label}</span>
     </div>
   );
 });

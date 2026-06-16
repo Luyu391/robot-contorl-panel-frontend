@@ -1,5 +1,13 @@
 import { http, HttpResponse, delay } from 'msw';
 
+// 模拟网络延迟配置（毫秒）
+const NETWORK_DELAY = {
+  fast: 80,      // 快速接口（如状态检查）
+  normal: 300,   // 常规接口
+  slow: 800,     // 慢速接口（确保骨架屏可见）
+  extra: 1200,   // 额外慢速接口
+};
+
 function makeState() {
   return {
     status: 'idle' as 'idle' | 'moving' | 'executing' | 'error' | 'offline',
@@ -16,7 +24,7 @@ const statusCycle: Array<'idle' | 'moving'> = ['idle', 'idle', 'idle', 'idle', '
 
 export const handlers = [
   http.get('/api/robot/status', async () => {
-    await delay(30);
+    await delay(NETWORK_DELAY.fast);
     const s = makeState();
     s.status = statusCycle[cycle % statusCycle.length];
     cycle += 1;
@@ -28,7 +36,7 @@ export const handlers = [
   }),
 
   http.post('/api/robot/parse', async ({ request }) => {
-    await delay(60);
+    await delay(NETWORK_DELAY.normal);
     const body = (await request.json()) as { text?: string };
     const text = (body?.text ?? '').toLowerCase();
 
@@ -52,7 +60,7 @@ export const handlers = [
   }),
 
   http.post('/api/robot/safety-check', async ({ request }) => {
-    await delay(40);
+    await delay(NETWORK_DELAY.fast);
     const body = (await request.json()) as { action?: string };
     return HttpResponse.json({
       passed: true,
@@ -80,7 +88,7 @@ export const handlers = [
   }),
 
   http.get('/api/robot/suggestions', async ({ request }) => {
-    await delay(80);
+    await delay(NETWORK_DELAY.normal);
     const url = new URL(request.url);
     const context = url.searchParams.get('context') ?? '';
 
@@ -94,7 +102,7 @@ export const handlers = [
   }),
 
   http.get('/api/robot/result/:id', async () => {
-    await delay(40);
+    await delay(NETWORK_DELAY.fast);
     return HttpResponse.json({
       success: Math.random() > 0.1,
       summary: '指令执行完成，机械臂各关节角度: J1=12.5° J2=-28.3° J3=48.1° J4=-12.7° J5=90° J6=0°',
@@ -103,7 +111,7 @@ export const handlers = [
   }),
 
   http.post('/api/llm/microcopy', async ({ request }) => {
-    await delay(60);
+    await delay(NETWORK_DELAY.normal);
     const body = (await request.json()) as { prompt?: string };
     const prompt = (body?.prompt ?? '').toLowerCase();
 
@@ -133,7 +141,8 @@ export const handlers = [
   }),
 
   http.get('/api/dating/profiles', async ({ request }) => {
-    await delay(800);
+    // 关键：800ms延迟确保骨架屏可见
+    await delay(NETWORK_DELAY.slow);
     const url = new URL(request.url);
     const limit = Number(url.searchParams.get('limit') ?? 12);
     const names = ['精密抓取方案', '快速分拣方案', '柔性操作方案', '协作搬运方案', '检测探针方案', '焊接定位方案', '涂胶轨迹方案', '视觉引导方案', '力控装配方案', '码垛堆叠方案', '打磨抛光方案', '测量校准方案'];
@@ -170,7 +179,7 @@ export const handlers = [
   }),
 
   http.post('/api/dating/swipe', async ({ request }) => {
-    await delay(40);
+    await delay(NETWORK_DELAY.fast);
     const body = (await request.json()) as { candidate_id?: string; direction?: string };
     return HttpResponse.json({
       ok: true,
@@ -181,7 +190,7 @@ export const handlers = [
   }),
 
   http.get('/api/dating/matches/next-reveal', async () => {
-    await delay(50);
+    await delay(NETWORK_DELAY.normal);
     return HttpResponse.json({
       matchId: 'mr1',
       selfName: '当前任务',

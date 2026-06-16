@@ -83,7 +83,7 @@ export function ExecutionReveal({
     };
   }, [onComplete]);
 
-  const iconColor = success ? 'text-emerald-600' : 'text-rose-600';
+  const iconColor = success ? 'text-emerald-300' : 'text-rose-300';
   const bgColor = success ? 'bg-emerald-50/50' : 'bg-rose-50/50';
 
   return (
@@ -109,7 +109,7 @@ export function ExecutionReveal({
         type="button"
         data-testid="execution-reveal-skip"
         onClick={() => onComplete?.()}
-        className="glass-btn absolute right-5 top-5 z-10 px-4 py-2 text-sm font-medium text-slate-500"
+        className="glass-btn absolute right-5 top-5 z-10 px-4 py-2 text-sm font-medium text-white/50"
         aria-label="关闭揭晓动画"
       >
         关闭
@@ -120,7 +120,7 @@ export function ExecutionReveal({
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: reduced ? 0 : 0.4 }}
-          className="text-xs tracking-[0.4em] text-slate-400"
+          className="text-xs tracking-[0.4em] text-white/40"
         >
           OpenCLaw · 指令执行
         </motion.p>
@@ -133,7 +133,7 @@ export function ExecutionReveal({
             type: reduced ? 'tween' : 'spring',
             stiffness: 200,
           }}
-          className={`relative flex h-24 w-24 items-center justify-center rounded-full ${bgColor} border border-white/30`}
+          className={`relative flex h-24 w-24 items-center justify-center rounded-full ${bgColor} border border-white/[0.1]`}
         >
           {success ? (
             <CheckCircle2 className={`h-12 w-12 ${iconColor}`} />
@@ -146,7 +146,7 @@ export function ExecutionReveal({
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: stage >= 2 ? 1 : 0, y: stage >= 2 ? 0 : 16 }}
           transition={{ duration: reduced ? 0 : 0.45 }}
-          className="text-2xl font-semibold text-slate-800"
+          className="text-2xl font-semibold text-white/90"
         >
           {success ? '指令执行成功' : '指令执行失败'}
         </motion.h2>
@@ -155,7 +155,7 @@ export function ExecutionReveal({
           initial={{ opacity: 0 }}
           animate={{ opacity: stage >= 2 ? 1 : 0 }}
           transition={{ delay: reduced ? 0 : 0.1, duration: reduced ? 0 : 0.4 }}
-          className="max-w-sm text-sm leading-6 text-slate-600"
+          className="max-w-sm text-sm leading-6 text-white/70"
           data-testid="execution-reveal-summary"
         >
           {summary}
@@ -165,7 +165,7 @@ export function ExecutionReveal({
           initial={{ opacity: 0 }}
           animate={{ opacity: stage >= 2 ? 1 : 0 }}
           transition={{ delay: reduced ? 0 : 0.15, duration: reduced ? 0 : 0.4 }}
-          className="flex items-center gap-4 text-xs text-slate-400"
+          className="flex items-center gap-4 text-xs text-white/40"
         >
           <span className="flex items-center gap-1">
             <Clock className="h-3.5 w-3.5" />
@@ -185,9 +185,9 @@ export function ExecutionReveal({
             className="grid grid-cols-3 gap-3 text-xs"
           >
             {Object.entries(joints).map(([joint, angle]) => (
-              <div key={joint} className="rounded-lg border border-white/30 glass px-3 py-2 text-center">
-                <p className="text-slate-400">{joint.toUpperCase()}</p>
-                <p className="mt-0.5 font-mono font-medium text-slate-700">{angle.toFixed(1)}°</p>
+              <div key={joint} className="rounded-lg border border-white/[0.1] glass px-3 py-2 text-center">
+                <p className="text-white/40">{joint.toUpperCase()}</p>
+                <p className="mt-0.5 font-mono font-medium text-white/80">{angle.toFixed(1)}°</p>
               </div>
             ))}
           </motion.div>

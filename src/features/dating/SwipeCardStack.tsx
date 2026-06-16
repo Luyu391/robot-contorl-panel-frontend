@@ -42,7 +42,12 @@ interface Spark {
 
 function spawnFirework(canvas: HTMLCanvasElement | null, direction: SwipeDirection, ox: number, oy: number) {
   if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+  let ctx: CanvasRenderingContext2D | null;
+  try {
+    ctx = canvas.getContext('2d');
+  } catch {
+    return;
+  }
   if (!ctx) return;
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio;
@@ -233,8 +238,15 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
   const [exiting, setExiting] = useState<{ id: string; direction: SwipeDirection } | null>(null);
   const [returning, setReturning] = useState<{ id: string; direction: SwipeDirection } | null>(null);
   const [history, setHistory] = useState<Array<{ candidate: SwipeCardCandidate }>>([]);
+  const [skipAnimation, setSkipAnimation] = useState(false);
 
   useEffect(() => { if (candidates.length > 0) setQueue(candidates); }, [candidates]);
+
+  const originalIndexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    candidates.forEach((c, i) => map.set(c.id, i));
+    return map;
+  }, [candidates]);
 
   const onSwipeRef = useRef(onSwipe);
   onSwipeRef.current = onSwipe;
@@ -243,6 +255,7 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
     const card = queue.find(c => c.id === cardId);
     if (!card) return;
     setExiting({ id: cardId, direction });
+    setSkipAnimation(false);
 
     const cardEl = document.querySelector(`[data-card-id="${cardId}"]`);
     if (cardEl && particlesRef.current) {
@@ -250,22 +263,35 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
       const pr = particlesRef.current.getBoundingClientRect();
       spawnFirework(particlesRef.current, direction, cr.left + cr.width / 2 - pr.left, cr.top + cr.height / 2 - pr.top);
     }
-
-    setTimeout(() => {
-      setExiting(null);
-      setQueue(prev => { const f = prev.filter(c => c.id !== cardId); return [...f, card]; });
-      setHistory(prev => [...prev, { candidate: card }]);
-      onSwipeRef.current?.(direction, card);
-      setReturning({ id: cardId, direction });
-      setTimeout(() => setReturning(null), 600);
-    }, 350);
   }, [queue]);
+
+  useEffect(() => {
+    if (!exiting) return;
+    const duration = skipAnimation ? 50 : 350;
+    const timer = setTimeout(() => {
+      const card = queue.find(c => c.id === exiting.id);
+      if (!card) return;
+      setExiting(null);
+      setSkipAnimation(false);
+      setQueue(prev => prev.filter(c => c.id !== exiting.id));
+      setHistory(prev => [...prev, { candidate: card }]);
+      onSwipeRef.current?.(exiting.direction, card);
+    }, duration);
+    return () => clearTimeout(timer);
+  }, [exiting, queue, skipAnimation]);
+
+  const handleDoubleClick = useCallback(() => {
+    if (exiting) {
+      setSkipAnimation(true);
+    }
+  }, [exiting]);
 
   const handleUndo = useCallback(() => {
     if (!history.length || exiting) return;
     const last = history[history.length - 1];
     setHistory(prev => prev.slice(0, -1));
-    setQueue(prev => { const f = prev.filter(c => c.id !== last.candidate.id); return [last.candidate, ...f]; });
+    // 被撤销的卡片原本就不在队列中，直接添加到最前面
+    setQueue(prev => [last.candidate, ...prev]);
     setReturning({ id: last.candidate.id, direction: 'down' });
     setTimeout(() => setReturning(null), 600);
   }, [history, exiting]);
@@ -310,19 +336,31 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
   const dirHint: Record<SwipeDirection, string> = { left: '左滑 · ←', right: '右滑 · → + 揭晓动画', up: '上滑 · ↑', down: '下滑 · ↓' };
 
   return (
-    <div data-testid="swipe-card-stack" role="region" aria-label="方案卡片" className="relative mx-auto flex w-full max-w-3xl flex-col items-center">
+    <div 
+      data-testid="swipe-card-stack" 
+      role="region" 
+      aria-label="方案卡片栈 - 支持键盘操作：方向键控制滑动，滚轮切换方案"
+      className="relative mx-auto flex w-full max-w-3xl flex-col items-center"
+      aria-roledescription="卡片浏览组件"
+    >
       {/* Camera */}
       <div className="relative mb-6 flex w-full items-center justify-center">
         {!cameraActive && !cameraError && (
-          <button onClick={startCamera} disabled={!queue.length || !!exiting} className="glass-btn glass-btn-indigo flex items-center gap-1.5 px-3 py-1.5 text-xs text-indigo-600">
+          <button 
+            onClick={startCamera} 
+            disabled={!queue.length || !!exiting} 
+            className="glass-btn glass-btn-indigo flex items-center gap-1.5 px-3 py-1.5 text-xs text-indigo-300"
+            aria-label="开启手势控制模式"
+            title="使用摄像头进行手势控制"
+          >
             <Camera className="h-3.5 w-3.5" /><span>手势控制</span>
           </button>
         )}
         {cameraActive && (
-          <div className="relative overflow-hidden rounded-xl border border-white/40 shadow-lg">
-            <video ref={videoRef} autoPlay playsInline muted className="h-24 w-32 object-cover" />
+          <div className="relative overflow-hidden rounded-xl border border-white/40 shadow-lg" role="status" aria-live="polite">
+            <video ref={videoRef} autoPlay playsInline muted className="h-24 w-32 object-cover" aria-label="手势检测画面" />
             {gestureDirection && (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20" aria-label={`检测到手势方向：${dirLabels[gestureDirection]}`}>
                 {gestureDirection === 'left' && <ChevronLeft className="h-8 w-8 text-rose-400" />}
                 {gestureDirection === 'right' && <ChevronRight className="h-8 w-8 text-emerald-400" />}
                 {gestureDirection === 'up' && <ChevronUp className="h-8 w-8 text-indigo-400" />}
@@ -330,27 +368,33 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
               </div>
             )}
             {countdownProgress > 0 && (
-              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100">
+              <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 100 100" role="presentation">
                 <circle cx="50" cy="50" r="44" fill="none" stroke={gestureDirection === 'left' ? '#f43f5e' : gestureDirection === 'right' ? '#10b981' : gestureDirection === 'up' ? '#6366f1' : '#f59e0b'} strokeWidth="3" strokeDasharray={`${countdownProgress * 276.5} 276.5`} strokeLinecap="round" transform="rotate(-90 50 50)" opacity={0.8} />
               </svg>
             )}
-            <button onClick={stopCamera} className="absolute right-1 top-1 rounded-full bg-black/40 p-1 text-white hover:bg-black/60" aria-label="关闭手势"><CameraOff className="h-3 w-3" /></button>
+            <button onClick={stopCamera} className="absolute right-1 top-1 rounded-full bg-black/40 p-1 text-white hover:bg-black/60" aria-label="关闭手势控制"><CameraOff className="h-3 w-3" /></button>
           </div>
         )}
-        {cameraError && <span className="text-xs text-slate-400">{cameraError}</span>}
+        {cameraError && <span className="text-xs text-white/40" role="alert" aria-live="assertive">{cameraError}</span>}
       </div>
 
       {/* Gallery stage */}
-      <div ref={containerRef} className="relative flex h-[480px] w-full items-center justify-center overflow-hidden" style={{ perspective: '1400px' }}>
-        <canvas ref={particlesRef} className="pointer-events-none absolute inset-0 z-50" style={{ width: '100%', height: '100%' }} />
+      <div 
+        ref={containerRef} 
+        className="relative flex h-[480px] w-full items-center justify-center overflow-hidden" 
+        style={{ perspective: '1400px' }}
+        aria-label={`当前显示 ${visibleCards.length} 个方案卡片`}
+        onDoubleClick={handleDoubleClick}
+      >
+        <canvas ref={particlesRef} className="pointer-events-none absolute inset-0 z-50" style={{ width: '100%', height: '100%' }} role="presentation" />
 
         {/* Ambient light spots */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-r from-indigo-200/15 via-purple-200/10 to-pink-200/10 blur-3xl" />
 
         {!visibleCards.length ? (
-          <div className="flex flex-col items-center gap-3 text-slate-500">
+          <div className="flex flex-col items-center gap-3 text-white/50" aria-label="暂无方案">
             <Sparkles className="h-8 w-8 opacity-40" />
-            <p className="text-sm">等待方案加载...</p>
+            <p className="text-sm">方案都看完啦</p>
           </div>
         ) : (
           <AnimatePresence mode="popLayout">
@@ -358,11 +402,13 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
               const isCenter = idx === 0;
               const isExiting = exiting?.id === card.id;
               const isReturning = returning?.id === card.id;
+              const originalIndex = originalIndexMap.get(card.id) ?? idx;
               return (
                 <GalleryCard
                   key={card.id}
                   candidate={card}
                   index={idx}
+                  originalIndex={originalIndex}
                   isCenter={isCenter}
                   isExiting={isExiting}
                   isReturning={isReturning}
@@ -382,15 +428,22 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
       {/* Action buttons with color labels */}
       <div className="mt-5 flex flex-col items-center gap-3">
         {/* 四色方向提示 */}
-        <div className="flex gap-4 text-[10px]">
+        <div className="flex gap-4 text-[10px]" role="status" aria-label="操作提示：左滑跳过，右滑采纳，上滑优先，下滑撤销">
           <span className="flex items-center gap-1 text-rose-500"><span className="inline-block h-2 w-2 rounded-full bg-rose-500" />左·跳过</span>
           <span className="flex items-center gap-1 text-emerald-500"><span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />右·采纳</span>
           <span className="flex items-center gap-1 text-violet-500"><span className="inline-block h-2 w-2 rounded-full bg-violet-500" />上·优先</span>
           <span className="flex items-center gap-1 text-amber-500"><span className="inline-block h-2 w-2 rounded-full bg-amber-500" />下·撤销</span>
         </div>
 
-        <div className="flex items-center gap-3">
-        <button data-testid="action-undo" aria-label="撤销" onClick={handleUndo} disabled={!history.length || !!exiting} className="glass-btn glass-btn-amber p-2.5 text-amber-500">
+        <div className="flex items-center gap-3" role="group" aria-label="操作按钮">
+        <button 
+          data-testid="action-undo" 
+          aria-label={`撤销上一次操作，已浏览 ${history.length} 个方案`} 
+          onClick={handleUndo} 
+          disabled={!history.length || !!exiting} 
+          className="glass-btn glass-btn-amber p-2.5 text-amber-500"
+          title="撤销 (下滑)"
+        >
           <RotateCcw className="h-5 w-5" />
         </button>
         {(['left', 'up', 'right'] as SwipeDirection[]).map(dir => {
@@ -398,11 +451,15 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
           const colorClass = `glass-btn-${dirColors[dir]}`;
           const textClass = `text-${dirColors[dir]}-500`;
           return (
-            <button key={dir} data-testid={`action-${dir === 'left' ? 'pass' : dir === 'right' ? 'like' : 'super'}`} aria-label={`${dirLabels[dir]}：${dirHint[dir]}`}
+            <button 
+              key={dir} 
+              data-testid={`action-${dir === 'left' ? 'pass' : dir === 'right' ? 'like' : 'super'}`} 
+              aria-label={`${dirLabels[dir]}当前方案：${dirHint[dir]}`}
               onClick={() => { if (visibleCards[0]) handleSwipe(dir, visibleCards[0].id); }}
               disabled={!visibleCards.length || !!exiting}
               title={dirHint[dir]}
-              className={`glass-btn ${colorClass} p-3 ${textClass}`}>
+              className={`glass-btn ${colorClass} p-3 ${textClass}`}
+            >
               <Icon className="h-6 w-6" />
             </button>
           );
@@ -417,6 +474,7 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
 interface GalleryCardProps {
   candidate: SwipeCardCandidate;
   index: number;
+  originalIndex: number;
   isCenter: boolean;
   isExiting: boolean;
   isReturning: boolean;
@@ -428,19 +486,17 @@ interface GalleryCardProps {
   blocked: boolean;
 }
 
-function GalleryCard({ candidate, index, isCenter, isExiting, isReturning, exitDir, returnDir, reduced, onSwipe, containerRef, blocked }: GalleryCardProps) {
+function GalleryCard({ candidate, index, originalIndex, isCenter, isExiting, isReturning, exitDir, returnDir, reduced, onSwipe, containerRef, blocked }: GalleryCardProps) {
   const [localTilt, setLocalTilt] = useState({ x: 0, y: 0 });
   const [hover, setHover] = useState(false);
 
-  // Arc fan-out positions
+  // Vertical stack positions — 卡片上下层叠，靠近堆叠
   const arcPosition = useMemo(() => {
-    if (isCenter) return { x: 0, y: 0, rotate: 0, scale: 1, zIndex: 20, hoverScale: 1.08, hoverY: -10 };
-    const dir = index % 2 === 0 ? 1 : -1;
-    const dist = Math.ceil(index / 2);
-    const x = dir * (dist * 190);
-    const y = dist * 28;
-    const rot = dir * (8 + dist * 3);
-    return { x, y, rotate: rot, scale: 0.8 - dist * 0.05, zIndex: 10 - dist, hoverScale: 0.85 - dist * 0.03, hoverY: -6 - dist * 2 };
+    if (isCenter) return { x: 0, y: 0, scale: 1, zIndex: 20 + index };
+    const yOffset = index * 14;
+    const scale = 1 - index * 0.025;
+    const rotationY = (index % 2 === 0 ? 1 : -1) * (2 + index * 1.5);
+    return { x: 0, y: yOffset, rotateY: rotationY, scale, zIndex: 20 - index };
   }, [isCenter, index]);
 
   // Mouse parallax → tilt facing cursor
@@ -489,25 +545,28 @@ function GalleryCard({ candidate, index, isCenter, isExiting, isReturning, exitD
   const dirGlow: Record<SwipeDirection, string> = { left: 'rgba(244,63,94,0.35)', right: 'rgba(16,185,129,0.35)', up: 'rgba(139,92,246,0.35)', down: 'rgba(245,158,11,0.35)' };
   const dirLabels: Record<SwipeDirection, string> = { left: '跳过', right: '采纳', up: '优先', down: '撤销' };
 
-  const currentScale = isExiting ? (exitTarget?.scale ?? 1) : isReturning ? (returnInit?.scale ?? 1) : (hover ? arcPosition.hoverScale : arcPosition.scale);
-  const currentYOffset = hover ? arcPosition.hoverY : 0;
+  const currentScale = isExiting ? (exitTarget?.scale ?? 1) : isReturning ? (returnInit?.scale ?? 1) : arcPosition.scale;
+  const currentYOffset = hover ? -8 : 0;
 
   return (
     <motion.div
       data-testid="swipe-card"
       data-card-id={candidate.id}
+      data-card-position={index}
+      data-card-index={originalIndex}
       aria-label={`${candidate.name}，${candidate.campus}，适配指数${candidate.score}`}
+      tabIndex={isCenter ? 0 : -1}
       className="absolute flex flex-col select-none"
       style={{
-        width: isCenter ? 320 : 240,
+        width: 320,
         transformStyle: 'preserve-3d',
-        zIndex: isCenter && hover ? 30 : arcPosition.zIndex,
+        zIndex: arcPosition.zIndex,
       }}
-      initial={{ x: arcPosition.x, y: arcPosition.y + 60, rotate: arcPosition.rotate, scale: arcPosition.scale, opacity: 0 }}
+      initial={{ x: arcPosition.x, y: arcPosition.y + 40, rotateY: arcPosition.rotateY ?? 0, scale: arcPosition.scale, opacity: 0 }}
       animate={
         isExiting ? exitTarget
-        : isReturning ? { x: arcPosition.x, y: arcPosition.y, rotate: arcPosition.rotate, scale: arcPosition.scale, opacity: 1 }
-        : { x: arcPosition.x, y: arcPosition.y + currentYOffset, rotate: arcPosition.rotate, scale: currentScale, opacity: 1 }
+        : isReturning ? { x: arcPosition.x, y: arcPosition.y, rotateY: arcPosition.rotateY ?? 0, scale: arcPosition.scale, opacity: 1 }
+        : { x: arcPosition.x, y: arcPosition.y, rotateY: arcPosition.rotateY ?? 0, scale: arcPosition.scale, opacity: 1 }
       }
       exit={isExiting ? exitTarget : undefined}
       transition={
@@ -528,86 +587,59 @@ function GalleryCard({ candidate, index, isCenter, isExiting, isReturning, exitD
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => { setHover(false); setLocalTilt({ x: 0, y: 0 }); }}
     >
-      {/* Card body with 3D depth */}
-      <div className="relative overflow-hidden rounded-2xl">
-        {/* Depth layers */}
-        <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-b from-white/70 via-white/30 to-white/5 translate-y-1.5 -z-10 transition-transform duration-200" />
-        <div className="absolute -inset-[1px] rounded-2xl bg-white/25 translate-y-0.5 -z-10 transition-transform duration-200" />
+      <div
+        className="relative overflow-hidden rounded-2xl p-5 backdrop-blur-2xl bg-white/[0.08] border border-white/[0.15] shadow-xl ring-1 ring-white/[0.05]"
+        style={isCenter && !blocked ? {
+          transform: `rotateX(${localTilt.x}deg) rotateY(${localTilt.y}deg)`,
+          transformStyle: 'preserve-3d',
+          transition: hover ? 'transform 0.12s ease-out, box-shadow 0.25s ease' : 'transform 0.3s ease-out, box-shadow 0.3s ease',
+        } : undefined}
+      >
+        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400/15 via-transparent to-rose-400/15" />
+        <motion.div
+          className="pointer-events-none absolute -inset-24 rounded-2xl bg-gradient-to-r from-transparent via-white/12 to-transparent"
+          animate={{ x: ['-120%', '120%'] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
+        />
 
-        {/* Main glass pane */}
-        <div
-          className={`relative rounded-2xl p-5 backdrop-blur-xl ring-1 ring-black/5 transition-shadow duration-300
-            ${isCenter ? 'glass' : 'glass-light'}
-            ${hover ? 'shadow-2xl shadow-black/10' : 'shadow-lg'}`}
-          style={isCenter && !blocked ? {
-            transform: `rotateX(${localTilt.x}deg) rotateY(${localTilt.y}deg)`,
-            transition: hover ? 'transform 0.12s ease-out, box-shadow 0.25s ease' : 'transform 0.3s ease-out, box-shadow 0.3s ease',
-          } : undefined}
-        >
-          {/* Edge iridescence */}
-          <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-400/10 via-transparent to-rose-400/10" />
-          {/* Light sweep */}
-          <motion.div
-            className="pointer-events-none absolute -inset-24 rounded-2xl bg-gradient-to-r from-transparent via-white/12 to-transparent"
-            animate={{ x: ['-120%', '120%'] }}
-            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', repeatDelay: 2 }}
-          />
-
-          {/* Direction overlay while exiting */}
-          {isExiting && exitDir && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl" style={{ background: dirGlow[exitDir] }}>
-              <div className="flex flex-col items-center gap-2 rounded-2xl bg-white/60 p-5 backdrop-blur-md">
-                {(() => { const I = dirIcons[exitDir]; return <I className="h-12 w-12" />; })()}
-                <span className="text-base font-bold">{dirLabels[exitDir]}</span>
-              </div>
+        {isExiting && exitDir && (
+          <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-2xl" style={{ background: dirGlow[exitDir] }}>
+            <div className="flex flex-col items-center gap-2 rounded-2xl bg-white/[0.12] p-5 backdrop-blur-md">
+              {(() => { const I = dirIcons[exitDir]; return <I className="h-12 w-12" />; })()}
+              <span className="text-base font-bold">{dirLabels[exitDir]}</span>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Card content */}
-          {isCenter ? (
-            <>
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-900">{candidate.name}</h3>
-                  <p className="mt-1 text-xs text-slate-500">{candidate.campus} · {candidate.academy}</p>
-                </div>
-                <div className="flex flex-col items-end gap-1.5">
-                  <span className="rounded-full bg-slate-100/70 px-3 py-1 text-xs font-semibold text-slate-700">{candidate.grade}</span>
-                  {candidate.mbti && <span className="rounded-full bg-indigo-50/70 px-2.5 py-0.5 text-[10px] font-medium text-indigo-500">{candidate.mbti}</span>}
-                </div>
-              </div>
-              <p className="mt-4 text-sm leading-6 text-slate-600">{candidate.intro}</p>
-              {candidate.hobbies.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {candidate.hobbies.slice(0, 4).map(h => (
-                    <span key={h} className="rounded-full bg-white/60 border border-white/40 px-2.5 py-0.5 text-[11px] text-slate-600">{h}</span>
-                  ))}
-                </div>
-              )}
-              <div className="mt-4 flex items-center justify-between border-t border-white/30 pt-3">
-                <span className="text-xs text-slate-400">适配指数</span>
-                <div className="flex items-center gap-2">
-                  <svg width="36" height="36" viewBox="0 0 36 36" className="-rotate-90">
-                    <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                    <circle cx="18" cy="18" r="14" fill="none" stroke="url(#scoreGrad)" strokeWidth="3" strokeLinecap="round"
-                      strokeDasharray={`${(candidate.score / 100) * 88} 88`} />
-                    <defs><linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#6366f1" /><stop offset="100%" stopColor="#a855f7" /></linearGradient></defs>
-                  </svg>
-                  <span className="font-mono text-lg font-bold text-indigo-600">{candidate.score}</span>
-                </div>
-              </div>
-            </>
-          ) : (
-            <>
-              <h3 className="text-sm font-bold text-slate-800">{candidate.name}</h3>
-              <p className="mt-0.5 text-[11px] text-slate-400">{candidate.campus}</p>
-              <p className="mt-2 text-xs leading-5 text-slate-500 line-clamp-2">{candidate.intro}</p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-[11px] text-slate-400">适配</span>
-                <span className="font-mono text-sm font-bold text-indigo-500">{candidate.score}</span>
-              </div>
-            </>
-          )}
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-xl font-bold text-white">{candidate.name}</h3>
+            <p className="mt-1 text-xs text-white/60">{candidate.campus} · {candidate.academy}</p>
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <span className="rounded-full bg-white/[0.12] px-3 py-1 text-xs font-semibold text-white/90">{candidate.grade}</span>
+            {candidate.mbti && <span className="rounded-full bg-indigo-50/70 px-2.5 py-0.5 text-[10px] font-medium text-indigo-400">{candidate.mbti}</span>}
+          </div>
+        </div>
+        <p className="mt-4 text-sm leading-6 text-white/80">{candidate.intro}</p>
+        {candidate.hobbies.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {candidate.hobbies.slice(0, 4).map(h => (
+              <span key={h} className="rounded-full bg-white/[0.15] border border-white/30 px-2.5 py-0.5 text-[11px] text-white/80">{h}</span>
+            ))}
+          </div>
+        )}
+        <div className="mt-4 flex items-center justify-between border-t border-white/[0.15] pt-3">
+          <span className="text-xs text-white/50">适配指数</span>
+          <div className="flex items-center gap-2">
+            <svg width="36" height="36" viewBox="0 0 36 36" className="-rotate-90">
+              <circle cx="18" cy="18" r="14" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+              <circle cx="18" cy="18" r="14" fill="none" stroke="url(#scoreGrad)" strokeWidth="3" strokeLinecap="round"
+                strokeDasharray={`${(candidate.score / 100) * 88} 88`} />
+              <defs><linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#6366f1" /><stop offset="100%" stopColor="#a855f7" /></linearGradient></defs>
+            </svg>
+            <span className="font-mono text-lg font-bold text-indigo-300">{candidate.score}</span>
+          </div>
         </div>
       </div>
 

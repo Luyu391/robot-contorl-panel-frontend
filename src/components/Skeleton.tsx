@@ -38,7 +38,7 @@ export function Skeleton({
       aria-label={ariaLabel}
       data-testid="skeleton"
       className={[
-        'relative overflow-hidden bg-slate-200',
+        'relative overflow-hidden bg-white/[0.08]',
         roundedMap[rounded],
         effectiveAnimate ? 'skeleton-shimmer' : '',
         className,

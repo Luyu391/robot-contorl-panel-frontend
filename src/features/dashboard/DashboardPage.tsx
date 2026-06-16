@@ -31,9 +31,9 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
   return (
     <section className="space-y-6 pt-2">
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-        <p className="text-xs tracking-[0.4em] text-slate-400">OPENCLAW</p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-900">控制面板</h1>
-        <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <h1 className="mt-2 text-3xl font-bold text-white">控制面板</h1>
+        <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           通过自然语言指令控制机械臂。输入你想让机械臂做的事情，
           OpenCLaw 会解析并执行你的指令。
         </p>
@@ -48,20 +48,20 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
         ].map((stat) => {
           const Icon = stat.icon;
           const accentMap: Record<string, { bg: string; text: string; ring: string }> = {
-            indigo: { bg: 'bg-indigo-50/60', text: 'text-indigo-600', ring: 'ring-indigo-200/50' },
-            emerald: { bg: 'bg-emerald-50/60', text: 'text-emerald-600', ring: 'ring-emerald-200/50' },
-            rose: { bg: 'bg-rose-50/60', text: 'text-rose-600', ring: 'ring-rose-200/50' },
+            indigo: { bg: 'bg-indigo-500/20', text: 'text-indigo-300', ring: 'ring-indigo-400/20' },
+            emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-300', ring: 'ring-emerald-400/20' },
+            rose: { bg: 'bg-rose-500/20', text: 'text-rose-300', ring: 'ring-rose-400/20' },
           };
           const a = accentMap[stat.accent];
           return (
             <StaggerItem key={stat.label}>
               <div className="group relative overflow-hidden rounded-2xl glass p-4 text-center transition-shadow hover:shadow-lg">
-                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-transparent to-slate-100/30" />
+                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-transparent to-white/[0.05]" />
                 <div className={`mx-auto inline-flex rounded-xl ${a.bg} p-2.5 ring-1 ${a.ring}`}>
                   <Icon className={`h-4 w-4 ${a.text}`} />
                 </div>
-                <p className="mt-2.5 font-mono text-2xl font-bold text-slate-800">{stat.value}</p>
-                <p className="text-xs text-slate-400">{stat.label}</p>
+                <p className="mt-2.5 font-mono text-2xl font-bold text-white/90">{stat.value}</p>
+                <p className="text-xs text-white/40">{stat.label}</p>
               </div>
             </StaggerItem>
           );
@@ -73,7 +73,7 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="rounded-2xl glass p-5">
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-white/80">
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500" />机械臂状态
             </h2>
             {state && <StatusIndicator status={state.status} />}
@@ -82,25 +82,25 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
             <div className="mt-4 space-y-3">
               <div className="grid grid-cols-3 gap-3 text-center">
                 {(['X', 'Y', 'Z'] as const).map((axis) => (
-                  <div key={axis} className="rounded-xl bg-white/30 py-2.5">
-                    <p className="text-xs text-slate-400">{axis}</p>
-                    <p className="font-mono text-base font-semibold text-slate-800">{state.pose[axis.toLowerCase() as 'x' | 'y' | 'z'].toFixed(1)}</p>
+                  <div key={axis} className="rounded-xl bg-white/[0.06] py-2.5">
+                    <p className="text-xs text-white/40">{axis}</p>
+                    <p className="font-mono text-base font-semibold text-white/90">{state.pose[axis.toLowerCase() as 'x' | 'y' | 'z'].toFixed(1)}</p>
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-between rounded-xl bg-white/30 px-4 py-2 text-xs">
-                <span className="text-slate-400">夹爪</span>
-                <span className="font-medium text-slate-700">{gripperLabel(state.gripper)}</span>
-                <span className="text-slate-400">速度</span>
-                <span className="font-medium text-slate-700">{state.speed}%</span>
+              <div className="flex items-center justify-between rounded-xl bg-white/[0.06] px-4 py-2 text-xs">
+                <span className="text-white/40">夹爪</span>
+                <span className="font-medium text-white/80">{gripperLabel(state.gripper)}</span>
+                <span className="text-white/40">速度</span>
+                <span className="font-medium text-white/80">{state.speed}%</span>
               </div>
             </div>
-          ) : <p className="mt-4 text-sm text-slate-400">加载中...</p>}
+          ) : <p className="mt-4 text-sm text-white/40">加载中...</p>}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
           className="rounded-2xl glass p-5">
-          {state?.joints ? <JointVisualizer joints={state.joints} /> : <p className="text-sm text-slate-400">关节数据加载中...</p>}
+          {state?.joints ? <JointVisualizer joints={state.joints} /> : <p className="text-sm text-white/40">关节数据加载中...</p>}
         </motion.div>
       </div>
 
@@ -108,8 +108,8 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
         className="rounded-2xl glass p-5">
         <div className="mb-4 flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-700">快速指令</h2>
+          <Terminal className="h-4 w-4 text-white/40" />
+          <h2 className="text-sm font-semibold text-white/80">快速指令</h2>
         </div>
         <CommandInput onExecute={onExecute} disabled={state?.status === 'offline'} />
       </motion.div>
@@ -137,7 +137,7 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
       {/* CTA */}
       <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
         onClick={onNavigateCommand}
-        className="glass-btn glass-btn-indigo group flex w-full items-center justify-between p-5 text-indigo-600">
+        className="glass-btn glass-btn-indigo group flex w-full items-center justify-between p-5 text-indigo-300">
         <div className="flex items-center gap-3">
           <Crosshair className="h-6 w-6" />
           <div className="text-left">

@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import type { RobotState } from '../types';
+import { useOffline } from '../contexts/OfflineContext';
 
 const POLL_INTERVAL = 2000;
 
@@ -16,28 +17,29 @@ interface RobotContextValue {
   state: RobotState | null;
   error: string | null;
   refresh: () => void;
+  isOffline: boolean;
 }
 
 const RobotCtx = createContext<RobotContextValue>({
   state: FALLBACK_STATE,
   error: null,
   refresh: () => {},
+  isOffline: false,
 });
 
 export function useRobotContext() {
   return useContext(RobotCtx);
 }
 
-let apiAvailable = true;
-
 export function RobotProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<RobotState | null>(FALLBACK_STATE);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const failCountRef = useRef(0);
+  const { isOffline } = useOffline();
 
   const fetchStatus = useCallback(async (signal: AbortSignal) => {
-    if (!apiAvailable) return;
+    if (isOffline) return;
 
     try {
       const res = await fetch('/api/robot/status', { signal });
@@ -50,13 +52,16 @@ export function RobotProvider({ children }: { children: ReactNode }) {
       if ((err as Error).name === 'AbortError') return;
       failCountRef.current += 1;
       if (failCountRef.current >= 3) {
-        apiAvailable = false;
+        setState(FALLBACK_STATE);
       }
     }
-  }, []);
+  }, [isOffline]);
 
   useEffect(() => {
-    if (!apiAvailable) return;
+    if (isOffline) {
+      setState(FALLBACK_STATE);
+      return;
+    }
 
     const ac = new AbortController();
     abortRef.current = ac;
@@ -68,19 +73,19 @@ export function RobotProvider({ children }: { children: ReactNode }) {
       ac.abort();
       clearInterval(timer);
     };
-  }, [fetchStatus]);
+  }, [fetchStatus, isOffline]);
 
   const refresh = useCallback(() => {
-    apiAvailable = true;
+    if (isOffline) return;
     failCountRef.current = 0;
     abortRef.current?.abort();
     const ac = new AbortController();
     abortRef.current = ac;
     fetchStatus(ac.signal);
-  }, [fetchStatus]);
+  }, [fetchStatus, isOffline]);
 
   return (
-    <RobotCtx.Provider value={{ state, error, refresh }}>
+    <RobotCtx.Provider value={{ state, error, refresh, isOffline }}>
       {children}
     </RobotCtx.Provider>
   );

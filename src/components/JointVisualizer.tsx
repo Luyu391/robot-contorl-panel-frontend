@@ -15,7 +15,7 @@ export const JointVisualizer = memo(function JointVisualizer({ joints, className
 
   return (
     <div className={`space-y-3 ${className}`} role="region" aria-label="关节角度可视化">
-      <h3 className="text-sm font-semibold text-slate-700">关节角度</h3>
+      <h3 className="text-sm font-semibold text-white/80">关节角度</h3>
       <div className="space-y-2">
         {values.map((angle, i) => {
           const [min, max] = JOINT_LIMITS[i];
@@ -25,7 +25,7 @@ export const JointVisualizer = memo(function JointVisualizer({ joints, className
 
           return (
             <div key={JOINT_LABELS[i]} className="flex items-center gap-3">
-              <span className="w-8 text-xs font-mono font-medium text-slate-500">{JOINT_LABELS[i]}</span>
+              <span className="w-8 text-xs font-mono font-medium text-white/50">{JOINT_LABELS[i]}</span>
               <div className="relative flex-1 h-3 rounded-full bg-white/30 overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
@@ -39,12 +39,12 @@ export const JointVisualizer = memo(function JointVisualizer({ joints, className
                   )}
                 </motion.div>
                 <div
-                  className="absolute inset-y-0 w-px bg-slate-300"
+                  className="absolute inset-y-0 w-px bg-white/30"
                   style={{ left: `${((0 - min) / (max - min)) * 100}%` }}
                   aria-hidden="true"
                 />
               </div>
-              <span className={`w-14 text-right text-xs font-mono ${isWarning ? 'text-amber-600 font-semibold' : 'text-slate-700'}`}>
+              <span className={`w-14 text-right text-xs font-mono ${isWarning ? 'text-amber-600 font-semibold' : 'text-white/80'}`}>
                 {angle.toFixed(1)}°
               </span>
             </div>

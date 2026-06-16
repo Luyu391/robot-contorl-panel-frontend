@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SwipeCardStack } from '../src/features/dating/SwipeCardStack';
 import type { SwipeCardCandidate, SwipeDirection } from '../src/types';
+
+const ANIMATION_DELAY = 700;
 
 function fixture(): SwipeCardCandidate[] {
   return [
@@ -47,7 +49,7 @@ describe('SwipeCardStack contract', () => {
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('action-like'));
-    expect(onSwipe).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledTimes(1), { timeout: ANIMATION_DELAY + 100 });
     const [direction, candidate] = onSwipe.mock.calls[0] as [SwipeDirection, SwipeCardCandidate];
     expect(direction).toBe('right');
     expect(candidate.id).toBe('c1');
@@ -58,7 +60,7 @@ describe('SwipeCardStack contract', () => {
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('action-pass'));
-    expect(onSwipe).toHaveBeenCalledWith('left', expect.objectContaining({ id: 'c1' }));
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledWith('left', expect.objectContaining({ id: 'c1' })), { timeout: ANIMATION_DELAY + 100 });
   });
 
   it('calls onSwipe with direction "up" when the super-like button is clicked', async () => {
@@ -66,7 +68,7 @@ describe('SwipeCardStack contract', () => {
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('action-super'));
-    expect(onSwipe).toHaveBeenCalledWith('up', expect.objectContaining({ id: 'c1' }));
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledWith('up', expect.objectContaining({ id: 'c1' })), { timeout: ANIMATION_DELAY + 100 });
   });
 
   it('advances the stack: after the first commit, the second candidate becomes top', async () => {
@@ -74,13 +76,15 @@ describe('SwipeCardStack contract', () => {
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('action-like'));
-    const top = screen
-      .getAllByTestId('swipe-card')
-      .find((c) => c.getAttribute('data-card-position') === '0');
-    expect(top?.getAttribute('data-card-index')).toBe('1');
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledTimes(1), { timeout: ANIMATION_DELAY + 100 });
+    await waitFor(() => {
+      const cards = screen.getAllByTestId('swipe-card');
+      const top = cards.find((c) => c.getAttribute('data-card-position') === '0' && parseFloat(c.style.opacity) === 1);
+      expect(top?.getAttribute('data-card-index')).toBe('1');
+    }, { timeout: ANIMATION_DELAY + 200 });
   });
 
-  it('responds to ArrowRight on the focused stack', () => {
+  it('responds to ArrowRight on the focused stack', async () => {
     const onSwipe = vi.fn();
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const top = screen
@@ -90,7 +94,7 @@ describe('SwipeCardStack contract', () => {
     act(() => {
       fireEvent.keyDown(top, { key: 'ArrowRight' });
     });
-    expect(onSwipe).toHaveBeenCalledWith('right', expect.objectContaining({ id: 'c1' }));
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledWith('right', expect.objectContaining({ id: 'c1' })), { timeout: ANIMATION_DELAY + 100 });
   });
 
   it('disables actions when all candidates are exhausted', async () => {
@@ -98,9 +102,11 @@ describe('SwipeCardStack contract', () => {
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('action-like'));
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledTimes(1), { timeout: ANIMATION_DELAY + 100 });
     await user.click(screen.getByTestId('action-like'));
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledTimes(2), { timeout: ANIMATION_DELAY + 100 });
     await user.click(screen.getByTestId('action-like'));
-    expect(onSwipe).toHaveBeenCalledTimes(3);
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledTimes(3), { timeout: ANIMATION_DELAY + 100 });
     expect(screen.getByTestId('action-like')).toBeDisabled();
     expect(screen.getByText(/方案都看完啦/)).toBeInTheDocument();
   });
@@ -120,7 +126,7 @@ describe('SwipeCardStack contract', () => {
     render(<SwipeCardStack candidates={fixture()} onSwipe={onSwipe} />);
     const user = userEvent.setup();
     await user.click(screen.getByTestId('action-like'));
-    expect(onSwipe).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onSwipe).toHaveBeenCalledTimes(1), { timeout: ANIMATION_DELAY + 100 });
   });
 });
 

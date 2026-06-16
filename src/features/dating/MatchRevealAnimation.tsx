@@ -40,7 +40,7 @@ function RevealContent({ payload, stage, reduced }: { payload: MatchRevealPayloa
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduced ? 0 : 0.2, ease: EASE }}
-        className="text-xs tracking-[0.4em] text-slate-400"
+        className="text-xs tracking-[0.4em] text-white/40"
       >OpenCLaw · 方案确认</motion.p>
 
       <motion.div
@@ -54,7 +54,7 @@ function RevealContent({ payload, stage, reduced }: { payload: MatchRevealPayloa
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: stage >= 2 ? 1 : 0, y: stage >= 2 ? 0 : 16 }}
         transition={{ duration: reduced ? 0 : 0.25, ease: EASE }}
-        className="text-2xl font-bold text-slate-800"
+        className="text-2xl font-bold text-white/90"
       >{payload.selfName} & {payload.partnerName}</motion.h2>
 
       <motion.div
@@ -63,9 +63,9 @@ function RevealContent({ payload, stage, reduced }: { payload: MatchRevealPayloa
         transition={{ delay: reduced ? 0 : 0.08, duration: reduced ? 0 : 0.25, ease: EASE }}
         className="flex items-center gap-2"
       >
-        <span className="rounded-full bg-indigo-50/60 px-4 py-1.5 text-sm font-semibold text-indigo-600">
+        <span className="rounded-full bg-indigo-50/60 px-4 py-1.5 text-sm font-semibold text-indigo-300">
           适配指数{' '}
-          <span className="text-lg font-bold text-slate-800">
+          <span className="text-lg font-bold text-white/90">
             <ScoreCounter target={payload.score} active={stage >= 2} reduced={reduced} />
           </span>
         </span>
@@ -82,7 +82,7 @@ function RevealContent({ payload, stage, reduced }: { payload: MatchRevealPayloa
             initial={{ opacity: 0, x: -16 }}
             animate={stage >= 2 ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
             transition={{ delay: reduced ? 0 : 0.15 + i * 0.08, duration: reduced ? 0 : 0.25, ease: EASE }}
-            className="relative flex items-center gap-3 rounded-lg bg-indigo-50/50 px-4 py-2 text-sm text-slate-700"
+            className="relative flex items-center gap-3 rounded-lg bg-indigo-50/50 px-4 py-2 text-sm text-white/80"
           >
             <span aria-hidden="true" className="absolute left-0 top-1/2 h-3/4 w-[3px] -translate-y-1/2 rounded-full bg-indigo-400" />
             <span>{h}</span>
@@ -139,7 +139,7 @@ export function MatchRevealAnimation({ payload, onComplete, autoCompleteMs = 140
       >
         <button type="button" data-testid="match-reveal-skip" onClick={handleSkip}
           aria-label="跳过方案确认动画"
-          className="glass-btn absolute right-5 top-5 z-20 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-slate-500">
+          className="glass-btn absolute right-5 top-5 z-20 flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white/50">
           <SkipForward className="h-4 w-4" />跳过
         </button>
 

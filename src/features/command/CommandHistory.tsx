@@ -10,7 +10,7 @@ interface CommandHistoryProps {
 export function CommandHistory({ history, onReplay }: CommandHistoryProps) {
   if (history.length === 0) {
     return (
-      <div className="rounded-card border border-dashed border-white/30 bg-white/20 backdrop-blur-sm py-12 text-center text-sm text-slate-500">
+      <div className="rounded-card border border-dashed border-white/30 bg-white/20 backdrop-blur-sm py-12 text-center text-sm text-white/50">
         <Clock className="mx-auto h-8 w-8 opacity-40" />
         <p className="mt-3">暂无指令历史</p>
         <p className="mt-1 text-xs">执行指令后将在此显示</p>
@@ -29,27 +29,27 @@ export function CommandHistory({ history, onReplay }: CommandHistoryProps) {
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="group flex items-center gap-3 rounded-2xl border border-white/30 glass px-4 py-3 shadow-lg transition hover:bg-white/30">
+            <div className="group flex items-center gap-3 rounded-2xl border border-white/30 glass px-4 py-3 shadow-lg transition hover:bg-white/[0.06]">
               <div className="shrink-0">
                 {record.status === 'completed' ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" aria-label="执行成功" />
+                  <CheckCircle2 className="h-5 w-5 text-emerald-300" aria-label="执行成功" />
                 ) : record.status === 'failed' ? (
-                  <XCircle className="h-5 w-5 text-rose-600" aria-label="执行失败" />
+                  <XCircle className="h-5 w-5 text-rose-300" aria-label="执行失败" />
                 ) : record.status === 'executing' ? (
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
                   >
-                    <Clock className="h-5 w-5 text-slate-500" aria-label="执行中" />
+                    <Clock className="h-5 w-5 text-white/50" aria-label="执行中" />
                   </motion.div>
                 ) : (
-                  <Clock className="h-5 w-5 text-slate-600" />
+                  <Clock className="h-5 w-5 text-white/70" />
                 )}
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="truncate text-sm font-medium text-slate-800">{record.rawText}</p>
-                <p className="mt-0.5 text-xs text-slate-500">
+                <p className="truncate text-sm font-medium text-white/90">{record.rawText}</p>
+                <p className="mt-0.5 text-xs text-white/50">
                   {new Date(record.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                   {record.duration !== undefined && (
                     <span className="ml-2">· {(record.duration / 1000).toFixed(1)}s</span>
@@ -62,7 +62,7 @@ export function CommandHistory({ history, onReplay }: CommandHistoryProps) {
                 type="button"
                 onClick={() => onReplay?.(record)}
                 aria-label={`重放指令：${record.rawText}`}
-                className="glass-btn shrink-0 p-2 text-slate-500 opacity-0 transition group-hover:opacity-100 hover:text-indigo-700 focus-visible:opacity-100"
+                className="glass-btn shrink-0 p-2 text-white/50 opacity-0 transition group-hover:opacity-100 hover:text-indigo-700 focus-visible:opacity-100"
               >
                 <RotateCcw className="h-4 w-4" />
               </button>

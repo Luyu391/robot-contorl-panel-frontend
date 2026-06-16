@@ -149,15 +149,15 @@ export function DatingPage() {
   return (
     <section className="space-y-4 pt-2">
       <div>
-        <p className="text-xs tracking-[0.4em] text-slate-400">OPENCLAW</p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-900">方案推荐</h1>
-        <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <h1 className="mt-2 text-3xl font-bold text-white">方案推荐</h1>
+        <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           左滑跳过 · 右滑采纳并播放揭晓动画 · 上滑优先 · 下滑撤销 · 滚轮浏览方案
         </p>
       </div>
 
       {offline && (
-        <div className="rounded-xl bg-amber-50/60 px-4 py-2.5 text-sm text-amber-700">
+        <div className="rounded-xl bg-amber-500/20 px-4 py-2.5 text-sm text-amber-200">
           离线模式 — 使用本地方案数据
         </div>
       )}
@@ -177,7 +177,7 @@ export function DatingPage() {
       <AnimatePresence>
         {showUndo && history.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-            className="text-center text-xs text-slate-400">
+            className="text-center text-xs text-white/40">
             下滑可撤销 · 已浏览 {history.length} 个方案
           </motion.div>
         )}

@@ -20,8 +20,8 @@ export function CoordinateViewer({ x, y, z, roll, pitch, yaw }: CoordinateViewer
 
   return (
     <div role="img" aria-label="末端坐标平面视图" className="space-y-3">
-      <h3 className="text-sm font-semibold text-slate-700">末端坐标平面视图</h3>
-      <div className="relative h-[200px] overflow-hidden rounded-2xl bg-white/20 backdrop-blur-sm border border-white/30">
+      <h3 className="text-sm font-semibold text-white/80">末端坐标平面视图</h3>
+      <div className="relative h-[200px] overflow-hidden rounded-2xl bg-white/20 backdrop-blur-sm border border-white/[0.1]">
         <svg viewBox="0 0 400 200" className="h-full w-full" aria-hidden="true">
           <line x1="40" y1="170" x2="360" y2="170" stroke="#94a3b8" strokeWidth="1" />
           <line x1="40" y1="170" x2="40" y2="20" stroke="#94a3b8" strokeWidth="1" />

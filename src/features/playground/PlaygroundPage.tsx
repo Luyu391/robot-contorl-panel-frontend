@@ -97,16 +97,16 @@ export function PlaygroundPage() {
       {/* 头部 */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs tracking-[0.4em] text-slate-400 uppercase">OpenCLaw · Industrial Robot</p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">3D 操控台</h1>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
+          <p className="text-xs tracking-[0.4em] text-white/40 uppercase">OpenCLaw · Industrial Robot</p>
+          <h1 className="mt-2 text-3xl font-bold text-white">3D 操控台</h1>
+          <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
             GLB高精模型 · GSAP动画引擎 · 参考 robot-arm-sim 架构
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setLogExpanded((v) => !v)}
-            className={`glass-btn px-3 py-2 text-sm font-medium ${logExpanded ? 'glass-btn-indigo text-indigo-600' : 'text-slate-500'}`}
+            className={`glass-btn px-3 py-2 text-sm font-medium ${logExpanded ? 'glass-btn-indigo text-indigo-300' : 'text-white/50'}`}
           >
             <Terminal className="mr-1 inline h-3.5 w-3.5" />
             日志
@@ -125,7 +125,7 @@ export function PlaygroundPage() {
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none">
           <button
             onClick={() => navigate('/operation')}
-            className="pointer-events-auto flex items-center gap-3 rounded-2xl bg-indigo-500/90 px-8 py-4 text-white shadow-2xl backdrop-blur-sm transition-all hover:bg-indigo-600 hover:scale-105 hover:shadow-indigo-500/30 active:scale-95"
+            className="pointer-events-auto flex items-center gap-3 rounded-2xl bg-indigo-500/200/90 px-8 py-4 text-white shadow-2xl backdrop-blur-sm transition-all hover:bg-indigo-600 hover:scale-105 hover:shadow-indigo-500/30 active:scale-95"
           >
             <Maximize2 className="h-5 w-5" />
             <div className="text-left">
@@ -137,10 +137,10 @@ export function PlaygroundPage() {
 
         {/* 模型加载提示 */}
         {!modelLoaded && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-sm">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/[0.06] backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-              <p className="text-sm text-slate-500">加载模型中...</p>
+              <p className="text-sm text-white/50">加载模型中...</p>
             </div>
           </div>
         )}
@@ -148,12 +148,12 @@ export function PlaygroundPage() {
 
       {/* 关节角度实时显示 */}
       <div className="rounded-2xl glass p-4 shadow-lg">
-        <h3 className="mb-3 text-sm font-semibold text-slate-700">实时关节角度 (°)</h3>
+        <h3 className="mb-3 text-sm font-semibold text-white/80">实时关节角度 (°)</h3>
         <div className="grid grid-cols-5 gap-2">
           {jointDegrees.map((v, i) => (
-            <div key={i} className="rounded-xl bg-white/30 px-2 py-2 text-center">
-              <p className="text-[10px] text-slate-400">{jointLabels[i]}</p>
-              <p className="font-mono text-sm font-bold text-slate-700">{v.toFixed(1)}</p>
+            <div key={i} className="rounded-xl bg-white/[0.06] px-2 py-2 text-center">
+              <p className="text-[10px] text-white/40">{jointLabels[i]}</p>
+              <p className="font-mono text-sm font-bold text-white/80">{v.toFixed(1)}</p>
             </div>
           ))}
         </div>
@@ -162,10 +162,10 @@ export function PlaygroundPage() {
       {/* 功能特性介绍 */}
       <div className="rounded-2xl glass p-5 shadow-lg">
         <div className="mb-3 flex items-center gap-2">
-          <Info className="h-4 w-4 text-indigo-500" />
-          <h3 className="text-sm font-semibold text-slate-700">实操功能</h3>
+          <Info className="h-4 w-4 text-indigo-300" />
+          <h3 className="text-sm font-semibold text-white/80">实操功能</h3>
         </div>
-        <div className="grid grid-cols-2 gap-3 text-xs text-slate-500">
+        <div className="grid grid-cols-2 gap-3 text-xs text-white/50">
           {[
             { title: '关节控制', desc: '5轴关节独立滑块调节', icon: '🎮' },
             { title: '预设动作', desc: '内置抓取&放置、示例动作', icon: '🎬' },
@@ -174,11 +174,11 @@ export function PlaygroundPage() {
             { title: '文件上传', desc: '支持自定义JSON动作序列', icon: '📁' },
             { title: '系统日志', desc: '可开关的实时操作日志', icon: '📋' },
           ].map((f) => (
-            <div key={f.title} className="flex items-start gap-2 rounded-lg bg-white/30 p-3">
+            <div key={f.title} className="flex items-start gap-2 rounded-lg bg-white/[0.06] p-3">
               <span className="text-base">{f.icon}</span>
               <div>
-                <p className="font-medium text-slate-700">{f.title}</p>
-                <p className="text-[10px] text-slate-400">{f.desc}</p>
+                <p className="font-medium text-white/80">{f.title}</p>
+                <p className="text-[10px] text-white/40">{f.desc}</p>
               </div>
             </div>
           ))}
@@ -187,10 +187,10 @@ export function PlaygroundPage() {
 
       {/* 技术栈 */}
       <div className="rounded-2xl glass p-4 shadow-lg">
-        <h3 className="mb-2 text-sm font-semibold text-slate-700">技术栈</h3>
+        <h3 className="mb-2 text-sm font-semibold text-white/80">技术栈</h3>
         <div className="flex flex-wrap gap-2 text-[10px]">
           {['Three.js', 'GSAP', 'GLTF', 'React', 'TypeScript', 'OrbitControls', 'PBR'].map((t) => (
-            <span key={t} className="rounded-full bg-indigo-50 px-2.5 py-1 font-medium text-indigo-600">{t}</span>
+            <span key={t} className="rounded-full bg-indigo-500/20 px-2.5 py-1 font-medium text-indigo-300">{t}</span>
           ))}
         </div>
       </div>

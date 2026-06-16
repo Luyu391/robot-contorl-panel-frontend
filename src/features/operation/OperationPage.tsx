@@ -126,6 +126,13 @@ export function OperationPage() {
       setGripperConfigs(arm.getGripperConfigs());
       applyModelAppearance(modelColor, modelMetalness, modelRoughness, modelWireframe, modelOpacity);
       arm.saveSafeSnapshot();
+
+      if (arm.model) {
+        arm.model.scale.set(0.3, 0.3, 0.3);
+        gsap.to(arm.model.scale, { x: 1, y: 1, z: 1, duration: 1.2, ease: 'power3.out' });
+        gsap.to(arm.model.rotation, { y: Math.PI * 2, duration: 2, ease: 'power2.out' });
+      }
+
       addLog('success', 'GLB模型加载完成 · 机械臂初始化成功');
     });
 
@@ -660,7 +667,7 @@ export function OperationPage() {
               className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
                 viewMode === mode
                   ? 'bg-indigo-500 text-white shadow-md'
-                  : 'glass text-slate-600 hover:bg-white/40'
+                  : 'glass text-white/70 hover:bg-white/[0.08]'
               }`}
             >
               {label}
@@ -678,7 +685,7 @@ export function OperationPage() {
                 : 'bg-rose-400/90 text-white'
             }`}
           >
-            <span className={`inline-block h-1.5 w-1.5 rounded-full ${safetyEnabled ? 'bg-white animate-pulse' : 'bg-white'}`} />
+            <span className={`inline-block h-1.5 w-1.5 rounded-full ${safetyEnabled ? 'bg-white/[0.06] animate-pulse' : 'bg-white/[0.06]'}`} />
             {safetyEnabled ? '安全模式' : '无保护'}
           </button>
           {!safetyStatus.isSafe && (
@@ -694,7 +701,7 @@ export function OperationPage() {
         {/* 返回按钮 */}
         <button
           onClick={() => navigate('/playground')}
-          className="absolute left-4 top-4 flex items-center gap-1.5 rounded-lg glass px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white/40 transition-all"
+          className="absolute left-4 top-4 flex items-center gap-1.5 rounded-lg glass px-3 py-1.5 text-xs font-medium text-white/70 hover:bg-white/[0.08] transition-all"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           返回
@@ -712,29 +719,29 @@ export function OperationPage() {
       </div>
 
       {/* ========== 控制面板 ========== */}
-      <div className={`flex flex-col border-l border-slate-200/60 bg-white/80 backdrop-blur-xl transition-all duration-300 ${
-        controlPanelOpen ? 'w-[340px]' : 'w-0 overflow-hidden border-l-0'
+      <div className={`flex flex-col border-l border-white/[0.08] bg-slate-900/70 backdrop-blur-xl transition-all duration-300 ${
+        controlPanelOpen ? 'w-[280px]' : 'w-0 overflow-hidden border-l-0'
       }`}>
         {controlPanelOpen && (
           <div className="flex flex-1 flex-col overflow-y-auto">
             {/* 面板头部 */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-              <h2 className="text-sm font-semibold text-slate-700">控制面板</h2>
+            <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+              <h2 className="text-sm font-semibold text-white/80">控制面板</h2>
               <button
                 onClick={() => setControlPanelOpen(false)}
-                className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                className="rounded p-1 text-white/40 hover:bg-white/[0.06] hover:text-white/70"
               >
                 <Minimize2 className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            <div className="flex-1 space-y-4 overflow-y-auto p-4">
+            <div className="flex-1 space-y-3 overflow-y-auto p-3">
               {/* ─── 关节控制 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
+              <div className="rounded-xl bg-white/[0.04] p-3">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-slate-600">关节控制</h3>
+                  <h3 className="text-xs font-semibold text-white/70">关节控制</h3>
                   <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-1 text-[10px] text-slate-400 cursor-pointer">
+                    <label className="flex items-center gap-1 text-[10px] text-white/40 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={safetyEnabled}
@@ -743,7 +750,7 @@ export function OperationPage() {
                       />
                       安全
                     </label>
-                    <label className="flex items-center gap-1.5 text-[10px] text-slate-400 cursor-pointer">
+                    <label className="flex items-center gap-1.5 text-[10px] text-white/40 cursor-pointer">
                       <input type="checkbox" checked={axisHelper} onChange={toggleAxis} className="h-3 w-3 rounded" />
                       轴辅助
                     </label>
@@ -763,7 +770,7 @@ export function OperationPage() {
                 <div className="space-y-2">
                   {jointConfigs.map((cfg, i) => (
                     <div key={cfg.name} className="flex items-center gap-2">
-                      <span className="w-16 text-[10px] font-medium text-slate-500">{jointLabels[i]}</span>
+                      <span className="w-16 text-[10px] font-medium text-white/50">{jointLabels[i]}</span>
                       <input
                         type="range"
                         min={cfg.minAngle}
@@ -772,19 +779,19 @@ export function OperationPage() {
                         value={cfg.currentAngle}
                         disabled={isPlaying}
                         onChange={(e) => setJoint(cfg.name, parseFloat(e.target.value))}
-                        className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-indigo-500"
+                        className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-indigo-500"
                       />
-                      <span className="w-10 text-right font-mono text-[10px] text-slate-600">{cfg.currentAngle.toFixed(0)}°</span>
+                      <span className="w-10 text-right font-mono text-[10px] text-white/70">{cfg.currentAngle.toFixed(0)}°</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* ─── 夹爪控制 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
-                <h3 className="mb-2 text-xs font-semibold text-slate-600">夹爪控制</h3>
+              <div className="rounded-xl bg-white/[0.04] p-3">
+                <h3 className="mb-2 text-xs font-semibold text-white/70">夹爪控制</h3>
                 <div className="flex items-center gap-2">
-                  <Grip className="h-3.5 w-3.5 text-slate-400" />
+                  <Grip className="h-3.5 w-3.5 text-white/40" />
                   <input
                     type="range"
                     min={0}
@@ -793,17 +800,17 @@ export function OperationPage() {
                     value={gripperOpenness}
                     disabled={isPlaying}
                     onChange={(e) => setGripperOpen(parseFloat(e.target.value))}
-                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-amber-500"
+                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                   />
-                  <span className="w-10 text-right font-mono text-[10px] text-slate-600">
+                  <span className="w-10 text-right font-mono text-[10px] text-white/70">
                     {gripperOpenness === 0 ? '闭合' : gripperOpenness === 1 ? '张开' : `${(gripperOpenness * 100).toFixed(0)}%`}
                   </span>
                 </div>
               </div>
 
               {/* ─── 预设动作 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
-                <h3 className="mb-3 text-xs font-semibold text-slate-600">预设动作</h3>
+              <div className="rounded-xl bg-white/[0.04] p-3">
+                <h3 className="mb-3 text-xs font-semibold text-white/70">预设动作</h3>
 
                 {/* 动作选择 */}
                 {!uploadedFile ? (
@@ -816,7 +823,7 @@ export function OperationPage() {
                         className={`flex-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-all ${
                           selectedAction === a.key
                             ? 'bg-indigo-500 text-white shadow-sm'
-                            : 'bg-white text-slate-600 hover:bg-slate-100'
+                            : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.06]'
                         } ${isPlaying ? 'opacity-40' : ''}`}
                       >
                         {a.label}
@@ -825,8 +832,8 @@ export function OperationPage() {
                   </div>
                 ) : (
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="text-[10px] text-indigo-600 font-medium">已上传自定义动作</span>
-                    <button onClick={resetUpload} className="text-[10px] text-slate-400 hover:text-slate-600 underline">重置</button>
+                    <span className="text-[10px] text-indigo-300 font-medium">已上传自定义动作</span>
+                    <button onClick={resetUpload} className="text-[10px] text-white/40 hover:text-white/70 underline">重置</button>
                   </div>
                 )}
 
@@ -850,7 +857,7 @@ export function OperationPage() {
                     className={`flex flex-1 items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
                       isPlaying || isPaused
                         ? 'bg-rose-100 text-rose-600 hover:bg-rose-200'
-                        : 'bg-slate-100 text-slate-400'
+                        : 'bg-white/[0.06] text-white/40'
                     }`}
                   >
                     <Square className="h-3 w-3" />
@@ -860,7 +867,7 @@ export function OperationPage() {
                     onClick={resetToIdle}
                     disabled={isPlaying}
                     className={`flex items-center justify-center gap-1 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
-                      isPlaying ? 'bg-slate-100 text-slate-400' : 'bg-white text-slate-600 hover:bg-slate-100'
+                      isPlaying ? 'bg-white/[0.06] text-white/40' : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.06]'
                     }`}
                   >
                     <RotateCcw className="h-3 w-3" />
@@ -869,7 +876,7 @@ export function OperationPage() {
 
                 {/* 进度条 */}
                 <div className="mb-2 flex items-center gap-2">
-                  <span className="text-[10px] text-slate-400">进度</span>
+                  <span className="text-[10px] text-white/40">进度</span>
                   <input
                     type="range"
                     min={0}
@@ -878,27 +885,27 @@ export function OperationPage() {
                     value={actionProgress}
                     disabled={isPlaying}
                     onChange={handleProgressDrag}
-                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-indigo-500"
+                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-indigo-500"
                   />
-                  <span className="font-mono text-[10px] text-slate-500">{(actionProgress * 100).toFixed(0)}%</span>
+                  <span className="font-mono text-[10px] text-white/50">{(actionProgress * 100).toFixed(0)}%</span>
                 </div>
 
                 {/* 状态信息 */}
-                <div className="flex items-center gap-4 text-[10px] text-slate-400">
+                <div className="flex items-center gap-4 text-[10px] text-white/40">
                   <span>帧: {currentFrameId}</span>
                   <span>夹爪: {gripperState ? '闭合' : '张开'}</span>
                 </div>
               </div>
 
               {/* ─── 轨迹可视化 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
+              <div className="rounded-xl bg-white/[0.04] p-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-slate-600">轨迹可视化</h3>
+                  <h3 className="text-xs font-semibold text-white/70">轨迹可视化</h3>
                   <div className="flex gap-1">
                     <button
                       onClick={toggleTrajectory}
                       className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-all ${
-                        trajectoryVisible ? 'bg-indigo-100 text-indigo-600' : 'bg-white text-slate-500'
+                        trajectoryVisible ? 'bg-indigo-500/20 text-indigo-300' : 'bg-white/[0.06] text-white/50'
                       }`}
                     >
                       {trajectoryVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
@@ -906,7 +913,7 @@ export function OperationPage() {
                     </button>
                     <button
                       onClick={() => { armRef.current?.clearTrajectory(); addLog('debug', '轨迹已清除'); }}
-                      className="rounded-lg bg-white px-2 py-1 text-[10px] text-slate-500 hover:bg-slate-100"
+                      className="rounded-lg bg-white/[0.06] px-2 py-1 text-[10px] text-white/50 hover:bg-white/[0.06]"
                     >
                       清除
                     </button>
@@ -915,8 +922,8 @@ export function OperationPage() {
               </div>
 
               {/* ─── 文件上传 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
-                <h3 className="mb-2 text-xs font-semibold text-slate-600">上传动作文件</h3>
+              <div className="rounded-xl bg-white/[0.04] p-3">
+                <h3 className="mb-2 text-xs font-semibold text-white/70">上传动作文件</h3>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -926,19 +933,19 @@ export function OperationPage() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-lg bg-white px-3 py-2 text-[10px] font-medium text-slate-600 hover:bg-slate-100 transition-all"
+                  className="w-full rounded-lg bg-white/[0.06] px-3 py-2 text-[10px] font-medium text-white/70 hover:bg-white/[0.06] transition-all"
                 >
                   选择 JSON 文件
                 </button>
               </div>
 
               {/* ─── 模型外观 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
+              <div className="rounded-xl bg-white/[0.04] p-3">
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-slate-600">模型外观</h3>
+                  <h3 className="text-xs font-semibold text-white/70">模型外观</h3>
                   <button
                     onClick={resetModelAppearance}
-                    className="rounded px-1.5 py-0.5 text-[10px] text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                    className="rounded px-1.5 py-0.5 text-[10px] text-white/40 hover:bg-white/[0.06] hover:text-white/70"
                   >
                     重置
                   </button>
@@ -946,19 +953,19 @@ export function OperationPage() {
                 <div className="space-y-2.5">
                   {/* 颜色 */}
                   <div className="flex items-center gap-2">
-                    <span className="w-12 text-[10px] text-slate-500">颜色</span>
+                    <span className="w-12 text-[10px] text-white/50">颜色</span>
                     <input
                       type="color"
                       value={modelColor}
                       onChange={(e) => handleColorChange(e.target.value)}
                       className="h-5 w-7 cursor-pointer rounded border-0 p-0"
                     />
-                    <span className="font-mono text-[10px] text-slate-400">{modelColor}</span>
+                    <span className="font-mono text-[10px] text-white/40">{modelColor}</span>
                   </div>
 
                   {/* 金属度 */}
                   <div className="flex items-center gap-2">
-                    <span className="w-12 text-[10px] text-slate-500">金属度</span>
+                    <span className="w-12 text-[10px] text-white/50">金属度</span>
                     <input
                       type="range"
                       min={0}
@@ -966,14 +973,14 @@ export function OperationPage() {
                       step={0.01}
                       value={modelMetalness}
                       onChange={(e) => handleMetalnessChange(parseFloat(e.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-amber-500"
+                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                     />
-                    <span className="w-8 text-right font-mono text-[10px] text-slate-500">{modelMetalness.toFixed(2)}</span>
+                    <span className="w-8 text-right font-mono text-[10px] text-white/50">{modelMetalness.toFixed(2)}</span>
                   </div>
 
                   {/* 粗糙度 */}
                   <div className="flex items-center gap-2">
-                    <span className="w-12 text-[10px] text-slate-500">粗糙度</span>
+                    <span className="w-12 text-[10px] text-white/50">粗糙度</span>
                     <input
                       type="range"
                       min={0}
@@ -981,14 +988,14 @@ export function OperationPage() {
                       step={0.01}
                       value={modelRoughness}
                       onChange={(e) => handleRoughnessChange(parseFloat(e.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-amber-500"
+                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                     />
-                    <span className="w-8 text-right font-mono text-[10px] text-slate-500">{modelRoughness.toFixed(2)}</span>
+                    <span className="w-8 text-right font-mono text-[10px] text-white/50">{modelRoughness.toFixed(2)}</span>
                   </div>
 
                   {/* 透明度 */}
                   <div className="flex items-center gap-2">
-                    <span className="w-12 text-[10px] text-slate-500">透明度</span>
+                    <span className="w-12 text-[10px] text-white/50">透明度</span>
                     <input
                       type="range"
                       min={0.2}
@@ -996,9 +1003,9 @@ export function OperationPage() {
                       step={0.01}
                       value={modelOpacity}
                       onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-slate-200 accent-amber-500"
+                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                     />
-                    <span className="w-8 text-right font-mono text-[10px] text-slate-500">{modelOpacity.toFixed(2)}</span>
+                    <span className="w-8 text-right font-mono text-[10px] text-white/50">{modelOpacity.toFixed(2)}</span>
                   </div>
 
                   {/* 线框模式 */}
@@ -1009,19 +1016,19 @@ export function OperationPage() {
                       onChange={handleWireframeToggle}
                       className="h-3 w-3 rounded accent-indigo-500"
                     />
-                    <span className="text-[10px] text-slate-500">线框模式</span>
+                    <span className="text-[10px] text-white/50">线框模式</span>
                   </label>
                 </div>
               </div>
 
               {/* ─── 关节角度实时显示 ─── */}
-              <div className="rounded-xl bg-slate-50/60 p-3">
-                <h3 className="mb-2 text-xs font-semibold text-slate-600">实时角度 (°)</h3>
+              <div className="rounded-xl bg-white/[0.04] p-3">
+                <h3 className="mb-2 text-xs font-semibold text-white/70">实时角度 (°)</h3>
                 <div className="grid grid-cols-5 gap-1">
                   {jointDegrees.map((v, i) => (
-                    <div key={i} className="rounded-lg bg-white px-1.5 py-1 text-center">
-                      <p className="text-[9px] text-slate-400">{jointLabels[i]}</p>
-                      <p className="font-mono text-[10px] font-semibold text-slate-700">{v.toFixed(1)}</p>
+                    <div key={i} className="rounded-lg bg-white/[0.06] px-1.5 py-1 text-center">
+                      <p className="text-[9px] text-white/40">{jointLabels[i]}</p>
+                      <p className="font-mono text-[10px] font-semibold text-white/80">{v.toFixed(1)}</p>
                     </div>
                   ))}
                 </div>
@@ -1035,7 +1042,7 @@ export function OperationPage() {
       {!controlPanelOpen && (
         <button
           onClick={() => setControlPanelOpen(true)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 rounded-l-lg bg-white/80 backdrop-blur-sm border border-r-0 border-slate-200/60 px-1.5 py-4 text-slate-400 hover:text-slate-600 shadow-sm"
+          className="absolute right-0 top-1/2 -translate-y-1/2 rounded-l-lg bg-slate-900/70 backdrop-blur-sm border border-r-0 border-white/[0.08] px-1.5 py-4 text-white/40 hover:text-white/70 shadow-sm"
         >
           <Maximize2 className="h-3.5 w-3.5" />
         </button>

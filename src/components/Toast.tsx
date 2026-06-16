@@ -34,10 +34,10 @@ const icons: Record<ToastType, typeof CheckCircle2> = {
 };
 
 const colors: Record<ToastType, string> = {
-  success: 'border-emerald-200/50 bg-emerald-50/50 text-emerald-700',
-  error: 'border-rose-200/50 bg-rose-50/50 text-rose-700',
-  warning: 'border-amber-200/50 bg-amber-50/50 text-amber-700',
-  info: 'border-indigo-200/50 bg-indigo-50/50 text-indigo-700',
+  success: 'border-emerald-400/30 bg-emerald-500/15 text-emerald-200',
+  error: 'border-rose-400/30 bg-rose-500/15 text-rose-200',
+  warning: 'border-amber-400/30 bg-amber-500/15 text-amber-200',
+  info: 'border-indigo-400/30 bg-indigo-500/15 text-indigo-200',
 };
 
 let toastId = 0;

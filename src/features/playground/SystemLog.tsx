@@ -23,7 +23,7 @@ const TYPE_STYLES: Record<string, string> = {
   success: 'text-emerald-400',
   warning: 'text-amber-400',
   error: 'text-rose-400',
-  debug: 'text-slate-400',
+  debug: 'text-white/40',
 };
 
 const TYPE_DOTS: Record<string, string> = {
@@ -74,21 +74,21 @@ export function SystemLog({ entries, onClear, expanded: extExpanded, onToggle }:
         {/* 头部 */}
         <div className="flex items-center justify-between border-b border-slate-700/40 px-4 py-2.5">
           <div className="flex items-center gap-2">
-            <Terminal className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-xs font-semibold text-slate-300 tracking-wider">SYSTEM LOG</span>
-            <span className="rounded-full bg-slate-700/60 px-1.5 text-[10px] text-slate-400">{entries.length}</span>
+            <Terminal className="h-3.5 w-3.5 text-white/40" />
+            <span className="text-xs font-semibold text-white/30 tracking-wider">SYSTEM LOG</span>
+            <span className="rounded-full bg-slate-700/60 px-1.5 text-[10px] text-white/40">{entries.length}</span>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={onClear}
-              className="rounded p-1 text-slate-500 hover:bg-rose-500/20 hover:text-rose-400 transition-colors"
+              className="rounded p-1 text-white/50 hover:bg-rose-500/20 hover:text-rose-400 transition-colors"
               title="清空日志"
             >
               <Trash2 className="h-3 w-3" />
             </button>
             <button
               onClick={toggle}
-              className="rounded p-1 text-slate-500 hover:bg-slate-700/50 hover:text-slate-300 transition-colors"
+              className="rounded p-1 text-white/50 hover:bg-slate-700/50 hover:text-white/30 transition-colors"
               title="收起"
             >
               <X className="h-3 w-3" />
@@ -104,15 +104,15 @@ export function SystemLog({ entries, onClear, expanded: extExpanded, onToggle }:
           style={{ scrollBehavior: 'smooth' }}
         >
           {entries.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-slate-600 text-xs">
+            <div className="flex h-full items-center justify-center text-white/70 text-xs">
               暂无日志信息
             </div>
           ) : (
             entries.map((entry) => (
               <div key={entry.id} className="mb-1.5 flex items-start gap-2 animate-[logSlideIn_0.15s_ease-out]">
                 <span className="mt-0.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: TYPE_STYLES[entry.type].replace('text-', '') }} />
-                <span className="shrink-0 text-slate-600">{formatTime(entry.timestamp)}</span>
-                <span className={TYPE_STYLES[entry.type] || 'text-slate-300'}>{entry.message}</span>
+                <span className="shrink-0 text-white/70">{formatTime(entry.timestamp)}</span>
+                <span className={TYPE_STYLES[entry.type] || 'text-white/30'}>{entry.message}</span>
               </div>
             ))
           )}
@@ -134,8 +134,8 @@ export function SystemLog({ entries, onClear, expanded: extExpanded, onToggle }:
         onClick={toggle}
         className={`flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 ${
           expanded
-            ? 'border-slate-600/50 bg-slate-800/90 text-slate-400 scale-0 opacity-0'
-            : 'border-slate-300/40 bg-white/80 text-slate-600 shadow-lg hover:border-indigo-400 hover:text-indigo-600 hover:shadow-indigo-200/50'
+            ? 'border-slate-600/50 bg-slate-800/90 text-white/40 scale-0 opacity-0'
+            : 'border-slate-300/40 bg-white/[0.18] text-white/70 shadow-lg hover:border-indigo-400 hover:text-indigo-300 hover:shadow-indigo-200/50'
         }`}
         title={expanded ? '收起日志' : '打开系统日志'}
       >

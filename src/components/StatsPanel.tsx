@@ -37,11 +37,11 @@ export function StatRing({ label, value, max, unit, color, index }: StatRingProp
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-lg font-bold text-slate-800">{value.toFixed(1)}</span>
+          <span className="text-lg font-bold text-white/90">{value.toFixed(1)}</span>
           <span className="text-[10px] text-ink-400">{unit}</span>
         </div>
       </div>
-      <span className="text-xs font-medium text-slate-600">{label}</span>
+      <span className="text-xs font-medium text-white/70">{label}</span>
     </motion.div>
   );
 }
@@ -60,7 +60,7 @@ export function StatsPanel({ joints, className = '' }: StatsPanelProps) {
 
   return (
     <div className={className} role="region" aria-label="关节环状统计">
-      <h3 className="text-sm font-semibold text-slate-700 mb-4">关节负载</h3>
+      <h3 className="text-sm font-semibold text-white/80 mb-4">关节负载</h3>
       <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
         {values.map((v, i) => (
           <StatRing

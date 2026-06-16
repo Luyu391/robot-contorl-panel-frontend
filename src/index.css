@@ -8,70 +8,59 @@
     min-height: 100%;
   }
   html {
-    background: linear-gradient(
-      170deg,
-      #f8f9ff 0%,
-      #f5f3ff 12%,
-      #fdf2f8 25%,
-      #fef3f0 38%,
-      #f0f9ff 50%,
-      #f5f3ff 62%,
-      #f8f9ff 75%,
-      #f0f4ff 88%,
-      #f8f9ff 100%
-    );
+    background: #0a0e1a;
     background-attachment: fixed;
-    color-scheme: light;
+    color-scheme: dark;
     min-height: 100vh;
   }
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display',
       'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
-    color: #1e293b;
+    color: rgba(255, 255, 255, 0.9);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: transparent;
   }
   :focus-visible {
-    outline: 2px solid #6366f1;
+    outline: 2px solid #818cf8;
     outline-offset: 2px;
     border-radius: 4px;
   }
 }
 
 @layer components {
-  /* ── 液态玻璃基础 ── */
+  /* ── 液态玻璃暗色基础 ── */
   .glass {
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(15, 23, 42, 0.55);
     backdrop-filter: blur(20px) saturate(1.4);
     -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
   }
   .glass-strong {
-    background: rgba(255, 255, 255, 0.78);
+    background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(28px) saturate(1.6);
     -webkit-backdrop-filter: blur(28px) saturate(1.6);
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15);
   }
   .glass-light {
-    background: rgba(255, 255, 255, 0.42);
+    background: rgba(30, 41, 59, 0.35);
     backdrop-filter: blur(14px) saturate(1.3);
     -webkit-backdrop-filter: blur(14px) saturate(1.3);
-    border: 1px solid rgba(255, 255, 255, 0.35);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   }
 
   /* ── 液态玻璃按钮 ── */
   .glass-btn {
     position: relative;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(30, 41, 59, 0.55);
     backdrop-filter: blur(16px) saturate(1.4);
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
     border-radius: 9999px;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
@@ -82,18 +71,18 @@
     inset: 0;
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.12) 0%,
       rgba(255, 255, 255, 0) 50%,
-      rgba(255, 255, 255, 0.3) 100%
+      rgba(255, 255, 255, 0.08) 100%
     );
     opacity: 0;
     transition: opacity 0.25s ease;
     pointer-events: none;
   }
   .glass-btn:hover {
-    background: rgba(255, 255, 255, 0.8);
-    border-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+    background: rgba(51, 65, 85, 0.65);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
     transform: translateY(-1px);
   }
   .glass-btn:hover::after {
@@ -101,7 +90,7 @@
   }
   .glass-btn:active {
     transform: translateY(0px) scale(0.98);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
     transition: all 0.1s ease;
   }
   .glass-btn:disabled {
@@ -113,77 +102,60 @@
     opacity: 0;
   }
 
-  /* ── 液态玻璃按钮 - 彩色变体 ── */
+  /* ── 液态玻璃按钮 - 暗色彩色变体 ── */
   .glass-btn-rose {
-    background: rgba(255, 228, 230, 0.55);
+    background: rgba(244, 114, 130, 0.15);
     border-color: rgba(244, 114, 130, 0.25);
   }
   .glass-btn-rose:hover {
-    background: rgba(255, 228, 230, 0.75);
+    background: rgba(244, 114, 130, 0.25);
     border-color: rgba(244, 114, 130, 0.4);
-    box-shadow: 0 4px 20px rgba(244, 114, 130, 0.12);
+    box-shadow: 0 4px 20px rgba(244, 114, 130, 0.15);
   }
   .glass-btn-emerald {
-    background: rgba(209, 250, 229, 0.55);
+    background: rgba(52, 211, 153, 0.15);
     border-color: rgba(52, 211, 153, 0.25);
   }
   .glass-btn-emerald:hover {
-    background: rgba(209, 250, 229, 0.75);
+    background: rgba(52, 211, 153, 0.25);
     border-color: rgba(52, 211, 153, 0.4);
-    box-shadow: 0 4px 20px rgba(52, 211, 153, 0.12);
+    box-shadow: 0 4px 20px rgba(52, 211, 153, 0.15);
   }
   .glass-btn-blue {
-    background: rgba(219, 234, 254, 0.55);
+    background: rgba(96, 165, 250, 0.15);
     border-color: rgba(96, 165, 250, 0.25);
   }
   .glass-btn-blue:hover {
-    background: rgba(219, 234, 254, 0.75);
+    background: rgba(96, 165, 250, 0.25);
     border-color: rgba(96, 165, 250, 0.4);
-    box-shadow: 0 4px 20px rgba(96, 165, 250, 0.12);
+    box-shadow: 0 4px 20px rgba(96, 165, 250, 0.15);
   }
   .glass-btn-amber {
-    background: rgba(254, 243, 199, 0.55);
+    background: rgba(251, 191, 36, 0.15);
     border-color: rgba(251, 191, 36, 0.25);
   }
   .glass-btn-amber:hover {
-    background: rgba(254, 243, 199, 0.75);
+    background: rgba(251, 191, 36, 0.25);
     border-color: rgba(251, 191, 36, 0.4);
-    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.12);
+    box-shadow: 0 4px 20px rgba(251, 191, 36, 0.15);
   }
   .glass-btn-indigo {
-    background: rgba(224, 231, 255, 0.55);
+    background: rgba(129, 140, 248, 0.15);
     border-color: rgba(129, 140, 248, 0.25);
   }
   .glass-btn-indigo:hover {
-    background: rgba(224, 231, 255, 0.75);
+    background: rgba(129, 140, 248, 0.25);
     border-color: rgba(129, 140, 248, 0.4);
-    box-shadow: 0 4px 20px rgba(129, 140, 248, 0.12);
+    box-shadow: 0 4px 20px rgba(129, 140, 248, 0.15);
   }
   .glass-btn-violet {
-    background: rgba(237, 233, 254, 0.55);
+    background: rgba(139, 92, 246, 0.15);
     border-color: rgba(139, 92, 246, 0.25);
   }
   .glass-btn-violet:hover {
-    background: rgba(237, 233, 254, 0.75);
+    background: rgba(139, 92, 246, 0.25);
     border-color: rgba(139, 92, 246, 0.4);
-    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.12);
-  }
-
-  /* ── 面板兼容 ── */
-  .panel {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(20px) saturate(1.4);
-    -webkit-backdrop-filter: blur(20px) saturate(1.4);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
-  }
-  .panel-hover {
-    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-  }
-  .panel-hover:hover {
-    border-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
   }
 }
 

@@ -96,9 +96,9 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
   return (
     <section className="space-y-6 pt-2">
       <div>
-        <p className="text-xs tracking-[0.4em] text-slate-400">OPENCLAW</p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-900">指令控制</h1>
-        <p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <h1 className="mt-2 text-3xl font-bold text-white">指令控制</h1>
+        <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           输入自然语言指令来控制机械臂。你可以描述目标位置、操作类型和参数，
           OpenCLaw 会自动解析并安全执行。
         </p>
@@ -108,8 +108,8 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl glass p-5 shadow-lg">
         <div className="mb-4 flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-700">指令输入</h2>
+          <Terminal className="h-4 w-4 text-white/40" />
+          <h2 className="text-sm font-semibold text-white/80">指令输入</h2>
         </div>
         <CommandInput onExecute={handleCommand} />
       </motion.div>
@@ -119,15 +119,15 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
           className="rounded-2xl glass p-5 shadow-lg">
           <div className="mb-4 flex items-center gap-2">
-            <Bookmark className="h-4 w-4 text-amber-500" />
-            <h2 className="text-sm font-semibold text-slate-700">收藏指令</h2>
-            <span className="rounded-full bg-amber-50/60 px-2 py-0.5 text-xs font-medium text-amber-600">{favoriteItems.length}</span>
+            <Bookmark className="h-4 w-4 text-amber-300" />
+            <h2 className="text-sm font-semibold text-white/80">收藏指令</h2>
+            <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-300">{favoriteItems.length}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {favoriteItems.slice(0, 6).map((item) => (
               <button key={item.id} onClick={() => handleReplay(item)}
-                className="glass-btn glass-btn-amber inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-600">
-                <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                className="glass-btn glass-btn-amber inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300">
+                <Star className="h-3 w-3 fill-amber-500 text-amber-300" />
                 {item.rawText.slice(0, 28)}
               </button>
             ))}
@@ -140,16 +140,16 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
         className="rounded-2xl glass p-5 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-700">AI 建议</h2>
-            <span className="rounded-full bg-indigo-50/60 px-2 py-0.5 text-xs text-indigo-500">LLM</span>
+            <Sparkles className="h-4 w-4 text-white/40" />
+            <h2 className="text-sm font-semibold text-white/80">AI 建议</h2>
+            <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 text-xs text-indigo-300">LLM</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Filter className="h-3.5 w-3.5 text-slate-400" />
+            <Filter className="h-3.5 w-3.5 text-white/40" />
             <div className="flex gap-1">
               {categories.map((cat) => (
                 <button key={cat} onClick={() => setFilter(cat)} aria-pressed={filter === cat}
-                  className={`glass-btn px-2 py-0.5 text-[10px] font-medium ${filter === cat ? 'glass-btn-indigo text-indigo-600' : 'text-slate-400'}`}>
+                  className={`glass-btn px-2 py-0.5 text-[10px] font-medium ${filter === cat ? 'glass-btn-indigo text-indigo-300' : 'text-white/40'}`}>
                   {cat === 'all' ? '全部' : cat}
                 </button>
               ))}
@@ -158,7 +158,7 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
         </div>
         {filteredSuggestions.length > 0
           ? <CommandSuggestions suggestions={filteredSuggestions} onSelect={handleSelectSuggestion} />
-          : <p className="text-sm text-slate-400">该分类暂无建议</p>}
+          : <p className="text-sm text-white/40">该分类暂无建议</p>}
       </motion.div>
 
       {/* 执行历史 */}
@@ -166,9 +166,9 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
         className="rounded-2xl glass p-5 shadow-lg">
         <div className="mb-4 flex items-center gap-2">
           <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-          <h2 className="text-sm font-semibold text-slate-700">执行历史</h2>
+          <h2 className="text-sm font-semibold text-white/80">执行历史</h2>
           {history.length > 0 && (
-            <span className="rounded-full bg-white/30 px-2 py-0.5 text-xs text-slate-400">{history.length} 条</span>
+            <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs text-white/40">{history.length} 条</span>
           )}
         </div>
         <CommandHistory history={history} onReplay={handleReplay} />

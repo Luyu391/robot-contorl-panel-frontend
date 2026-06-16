@@ -2,10 +2,12 @@ import { Suspense, useState, useCallback, lazy } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { Bot, Settings, HelpCircle, Gamepad2, ClipboardList } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
+import { LiquidGlassBackground } from './components/LiquidGlass';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import CommandPanel from './features/command/CommandPanel';
 import { ToastProvider, useToast } from './components/Toast';
 import { RobotProvider } from './hooks/useRobotContext';
+import { OfflineProvider } from './contexts/OfflineContext';
 import ExecutionReveal from './features/reveal/ExecutionReveal';
 import PageTransition, { type TransitionMode } from './components/PageTransition';
 import { useCommandHistory } from './hooks/useCommandHistory';
@@ -31,11 +33,13 @@ const TRANSITION_FOR: Record<string, TransitionMode> = {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <RobotProvider>
-        <AppShell />
-      </RobotProvider>
-    </ToastProvider>
+    <OfflineProvider>
+      <ToastProvider>
+        <RobotProvider>
+          <AppShell />
+        </RobotProvider>
+      </ToastProvider>
+    </OfflineProvider>
   );
 }
 
@@ -124,22 +128,25 @@ function AppRoutes() {
   const isOperation = location.pathname === '/operation';
 
   return (
-    <div className="min-h-screen">
-      <AppHeader />
-      <main className={isOperation ? 'h-[calc(100vh-3.5rem)]' : 'mx-auto w-full max-w-3xl px-4 pb-24 pt-4 md:px-5'}>
-        <PageTransition mode={mode} routeKey={location.pathname}>
-          <Routes location={location}>
-            <Route path="/" element={<DashboardPage history={history} onExecute={makeDashboardExecute} onNavigateCommand={navigateCommand} />} />
-            <Route path="/command" element={<CommandPanel history={history} onAddCommand={addCommand} onUpdateStatus={updateStatus} onExecute={handleExecute} />} />
-            <Route path="/playground" element={<Suspense fallback={<SkeletonShell />}><PlaygroundPage /></Suspense>} />
-            <Route path="/operation" element={<Suspense fallback={<SkeletonShell />}><OperationPage /></Suspense>} />
-            <Route path="/dating" element={<Suspense fallback={<SkeletonShell />}><DatingPage /></Suspense>} />
-            <Route path="/settings" element={<Suspense fallback={<SkeletonShell />}><SettingsPage /></Suspense>} />
-            <Route path="/help" element={<Suspense fallback={<SkeletonShell />}><HelpPage /></Suspense>} />
-            <Route path="*" element={<DashboardPage history={history} onExecute={makeDashboardExecute} onNavigateCommand={navigateCommand} />} />
-          </Routes>
-        </PageTransition>
-      </main>
+    <div className="min-h-screen relative">
+      <LiquidGlassBackground />
+      <div className="relative z-10">
+        <AppHeader />
+        <main className={isOperation ? 'h-[calc(100vh-3.5rem)]' : 'mx-auto w-full max-w-3xl px-4 pb-24 pt-4 md:px-5'}>
+          <PageTransition mode={mode} routeKey={location.pathname}>
+            <Routes location={location}>
+              <Route path="/" element={<DashboardPage history={history} onExecute={makeDashboardExecute} onNavigateCommand={navigateCommand} />} />
+              <Route path="/command" element={<CommandPanel history={history} onAddCommand={addCommand} onUpdateStatus={updateStatus} onExecute={handleExecute} />} />
+              <Route path="/playground" element={<Suspense fallback={<SkeletonShell />}><PlaygroundPage /></Suspense>} />
+              <Route path="/operation" element={<Suspense fallback={<SkeletonShell />}><OperationPage /></Suspense>} />
+              <Route path="/dating" element={<Suspense fallback={<SkeletonShell />}><DatingPage /></Suspense>} />
+              <Route path="/settings" element={<Suspense fallback={<SkeletonShell />}><SettingsPage /></Suspense>} />
+              <Route path="/help" element={<Suspense fallback={<SkeletonShell />}><HelpPage /></Suspense>} />
+              <Route path="*" element={<DashboardPage history={history} onExecute={makeDashboardExecute} onNavigateCommand={navigateCommand} />} />
+            </Routes>
+          </PageTransition>
+        </main>
+      </div>
       {revealData && (
         <ExecutionReveal rawText={revealData.rawText} success={revealData.success} summary={revealData.summary} duration={revealData.duration} onComplete={handleRevealComplete} />
       )}
@@ -161,10 +168,10 @@ function AppHeader() {
   ];
 
   return (
-    <header className="glass-strong sticky top-0 z-40 border-b border-white/20">
+    <header className="glass-strong sticky top-0 z-40 border-b border-white/[0.08]">
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-2.5 md:px-5">
-        <Link to="/" className="flex shrink-0 items-center gap-2 text-sm font-semibold text-slate-800">
-          <Bot className="h-4 w-4 text-indigo-600" />
+        <Link to="/" className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white/90">
+          <Bot className="h-4 w-4 text-indigo-400" />
           <span className="hidden sm:inline">OpenCLaw Control</span>
         </Link>
         <nav aria-label="主导航" className="flex flex-wrap items-center gap-0.5 text-xs">
@@ -173,8 +180,8 @@ function AppHeader() {
             return (
               <Link key={item.to} to={item.to} aria-current={active ? 'page' : undefined}
                 className={active
-                  ? 'glass-light rounded-lg px-2.5 py-1.5 font-medium text-indigo-700'
-                  : 'rounded-lg px-2.5 py-1.5 text-slate-500 transition hover:bg-white/30 hover:text-slate-700'}>
+                  ? 'glass-light rounded-lg px-2.5 py-1.5 font-medium text-indigo-300'
+                  : 'rounded-lg px-2.5 py-1.5 text-white/40 transition hover:bg-white/[0.06] hover:text-white/70'}>
                 {item.icon}{item.label}
               </Link>
             );
@@ -185,7 +192,7 @@ function AppHeader() {
             const active = location.pathname === item.to;
             return (
               <Link key={item.to} to={item.to} aria-current={active ? 'page' : undefined} title={item.label}
-                className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs transition ${active ? 'glass-light font-medium text-indigo-700' : 'text-slate-400 hover:bg-white/30 hover:text-slate-600'}`}>
+                className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs transition ${active ? 'glass-light font-medium text-indigo-300' : 'text-white/30 hover:bg-white/[0.06] hover:text-white/60'}`}>
                 {item.icon}<span>{item.label}</span>
               </Link>
             );
@@ -200,17 +207,17 @@ function SkeletonShell() {
   return (
     <section className="space-y-4 pt-2">
       <div className="glass rounded-xl p-6">
-        <div className="h-4 w-1/3 rounded bg-slate-200/80 animate-pulse" />
+        <div className="h-4 w-1/3 rounded bg-white/[0.08] animate-pulse" />
         <div className="mt-4 space-y-3">
-          <div className="h-3 w-full rounded bg-slate-100/80 animate-pulse" />
-          <div className="h-3 w-4/5 rounded bg-slate-100/80 animate-pulse" />
+          <div className="h-3 w-full rounded bg-white/[0.05] animate-pulse" />
+          <div className="h-3 w-4/5 rounded bg-white/[0.05] animate-pulse" />
         </div>
       </div>
       <div className="glass rounded-xl p-6">
-        <div className="h-4 w-1/4 rounded bg-slate-200/80 animate-pulse" />
+        <div className="h-4 w-1/4 rounded bg-white/[0.08] animate-pulse" />
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="h-20 rounded-lg bg-slate-100/80 animate-pulse" />
-          <div className="h-20 rounded-lg bg-slate-100/80 animate-pulse" />
+          <div className="h-20 rounded-lg bg-white/[0.05] animate-pulse" />
+          <div className="h-20 rounded-lg bg-white/[0.05] animate-pulse" />
         </div>
       </div>
     </section>
