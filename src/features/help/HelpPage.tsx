@@ -21,11 +21,11 @@ export function HelpPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <section className="space-y-6 pt-2">
+    <section className="space-y-5 pt-2">
       <div>
         <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
-        <h1 className="mt-2 text-3xl font-bold text-white/90">帮助中心</h1>
-        <p className="mt-2 max-w-lg text-sm leading-6 text-white/40">
+        <h1 className="mt-2 text-3xl font-bold text-white glow-text">帮助中心</h1>
+        <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           了解如何使用 OpenCLaw 控制面板，查看键盘快捷键和常见问题。
         </p>
       </div>
@@ -33,21 +33,29 @@ export function HelpPage() {
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-card border border-white/[0.1] glass p-5 shadow-lg"
+        className="relative overflow-hidden rounded-2xl glass shadow-lg"
       >
-        <div className="flex items-center gap-2 mb-4">
-          <Keyboard className="h-4 w-4 text-white/40" />
-          <h2 className="text-sm font-semibold text-white/80">键盘快捷键</h2>
-        </div>
-        <div className="space-y-2">
-          {shortcuts.map((sc) => (
-            <div key={sc.key} className="flex items-center justify-between rounded-xl bg-white/[0.06] backdrop-blur-sm px-4 py-2.5">
-              <kbd className="rounded-md border border-white/[0.1] bg-white/[0.08] px-2 py-0.5 font-mono text-xs font-semibold text-white/80 shadow-lg">
-                {sc.key}
-              </kbd>
-              <span className="text-xs text-white/70">{sc.desc}</span>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
+              <Keyboard className="h-4 w-4 text-indigo-300" />
             </div>
-          ))}
+            <div>
+              <h2 className="text-sm font-semibold text-white/90">键盘快捷键</h2>
+              <p className="text-[10px] text-white/40">快速操作指令</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {shortcuts.map((sc) => (
+              <div key={sc.key} className="flex items-center justify-between rounded-xl bg-white/[0.06] backdrop-blur-sm px-4 py-2.5 transition-all hover:bg-white/[0.1]">
+                <kbd className="rounded-lg border border-indigo-500/30 bg-indigo-500/15 px-3 py-1 font-mono text-xs font-semibold text-indigo-300 shadow-lg">
+                  {sc.key}
+                </kbd>
+                <span className="text-xs text-white/70">{sc.desc}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </motion.div>
 
@@ -55,40 +63,48 @@ export function HelpPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-card border border-white/[0.1] glass p-5 shadow-lg"
+        className="relative overflow-hidden rounded-2xl glass shadow-lg"
       >
-        <div className="flex items-center gap-2 mb-4">
-          <HelpCircle className="h-4 w-4 text-white/40" />
-          <h2 className="text-sm font-semibold text-white/80">常见问题</h2>
-        </div>
-        <div className="space-y-2">
-          {faqItems.map((item, i) => (
-            <div key={i} className="overflow-hidden rounded-xl border border-white/[0.1]">
-              <button
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                aria-expanded={openFaq === i}
-                className="glass-btn flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-white/80"
-              >
-                <span>{item.q}</span>
-                {openFaq === i ? (
-                  <ChevronUp className="h-4 w-4 text-white/40 shrink-0" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-white/40 shrink-0" />
-                )}
-              </button>
-              {openFaq === i && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  className="px-4 pb-3"
-                >
-                  <p className="text-xs leading-5 text-white/70 border-t border-white/[0.1] pt-3">
-                    {item.a}
-                  </p>
-                </motion.div>
-              )}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
+              <HelpCircle className="h-4 w-4 text-emerald-300" />
             </div>
-          ))}
+            <div>
+              <h2 className="text-sm font-semibold text-white/90">常见问题</h2>
+              <p className="text-[10px] text-white/40">FAQ</p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {faqItems.map((item, i) => (
+              <div key={i} className="overflow-hidden rounded-xl border border-white/[0.1]">
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  aria-expanded={openFaq === i}
+                  className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-sm font-medium text-white/80 transition-all hover:bg-white/[0.06]"
+                >
+                  <span>{item.q}</span>
+                  {openFaq === i ? (
+                    <ChevronUp className="h-4 w-4 text-emerald-300 shrink-0" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-white/40 shrink-0" />
+                  )}
+                </button>
+                {openFaq === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    className="px-4 pb-3"
+                  >
+                    <p className="text-xs leading-5 text-white/70 border-t border-white/[0.1] pt-3">
+                      {item.a}
+                    </p>
+                  </motion.div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </motion.div>
 
@@ -96,26 +112,34 @@ export function HelpPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15 }}
-        className="rounded-card border border-white/[0.1] glass p-5 shadow-lg"
+        className="relative overflow-hidden rounded-2xl glass shadow-lg"
       >
-        <div className="flex items-center gap-2 mb-3">
-          <Lightbulb className="h-4 w-4 text-amber-300" />
-          <h2 className="text-sm font-semibold text-white/80">使用技巧</h2>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
+        <div className="p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20">
+              <Lightbulb className="h-4 w-4 text-amber-300" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-white/90">使用技巧</h2>
+              <p className="text-[10px] text-white/40">提高操作效率</p>
+            </div>
+          </div>
+          <ul className="space-y-3">
+            {[
+              '描述越具体，解析越精准。尽量包含目标位置、操作类型和参数。',
+              '善用仪表盘的快捷操作按钮，常见操作无需手动输入指令。',
+              '在监控页面可以实时查看各个关节的角度变化，便于调试。',
+            ].map((tip, i) => (
+              <li key={i} className="flex items-start gap-3 rounded-xl bg-white/[0.06] p-3">
+                <span className="mt-0.5 h-4 w-4 flex items-center justify-center rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                  {i + 1}
+                </span>
+                <span className="text-xs leading-5 text-white/70">{tip}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-        <ul className="space-y-2 text-xs leading-5 text-white/70">
-          <li className="flex items-start gap-2">
-            <span className="mt-0.5 text-amber-300">•</span>
-            描述越具体，解析越精准。尽量包含目标位置、操作类型和参数。
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-0.5 text-amber-300">•</span>
-            善用仪表盘的快捷操作按钮，常见操作无需手动输入指令。
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="mt-0.5 text-amber-300">•</span>
-            在监控页面可以实时查看各个关节的角度变化，便于调试。
-          </li>
-        </ul>
       </motion.div>
     </section>
   );

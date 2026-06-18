@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import {
   ArrowLeft, Play, Pause, Square, RotateCcw, Eye, EyeOff,
-  Camera, Grip, Maximize2, Minimize2,
+  Camera, Grip, Maximize2, Minimize2, Shield, AlertTriangle,
+  Upload, RefreshCw, Settings2, Layers
 } from 'lucide-react';
 import {
   RobotArm, createScene, setupLighting, setupGround,
@@ -13,10 +14,8 @@ import {
 } from '../playground/robotArm3D';
 import { SystemLog, type LogEntry } from '../playground/SystemLog';
 
-// ==================== 类型定义 ====================
 type ViewMode = 'default' | 'front' | 'top' | 'side';
 
-// ==================== 场景配置 ====================
 const SCENE_CONFIG: Record<ViewMode, { pos: readonly [number, number, number]; target: readonly [number, number, number] }> = {
   default: { pos: [1.82, 2.19, -1.57], target: [0, 1.2, 0] },
   front: { pos: [0, 1.5, 5], target: [0, 1.2, 0] },
@@ -24,7 +23,6 @@ const SCENE_CONFIG: Record<ViewMode, { pos: readonly [number, number, number]; t
   side: { pos: [5, 1.5, 0], target: [0, 1.2, 0] },
 };
 
-// ==================== 预设动作 ====================
 interface PresetAction {
   key: string;
   label: string;
@@ -36,11 +34,9 @@ const PRESET_ACTIONS: PresetAction[] = [
   { key: 'demo_action', label: '示例动作', path: '/actions/demo_action.json' },
 ];
 
-// ==================== 页面 ====================
 export function OperationPage() {
   const navigate = useNavigate();
 
-  // ─── 日志 ───
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [logExpanded, setLogExpanded] = useState(true);
   const addLog = useCallback((type: LogEntry['type'], message: string) => {
@@ -50,7 +46,6 @@ export function OperationPage() {
     ]);
   }, []);
 
-  // ─── 3D Refs ───
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const camRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -60,7 +55,6 @@ export function OperationPage() {
   const afRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ─── 状态 ───
   const [jointConfigs, setJointConfigs] = useState<JointConfig[]>([]);
   const [gripperConfigs, setGripperConfigs] = useState<JointConfig[]>([]);
   const [gripperOpenness, setGripperOpenness] = useState(0);
@@ -69,7 +63,6 @@ export function OperationPage() {
   const [trajectoryVisible, setTrajectoryVisible] = useState(false);
   const [controlPanelOpen, setControlPanelOpen] = useState(true);
 
-  // ─── 动画状态 ───
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [actionProgress, setActionProgress] = useState(0);
@@ -81,18 +74,15 @@ export function OperationPage() {
   const isDraggingRef = useRef(false);
   const [jointDegrees, setJointDegrees] = useState<number[]>([0, 0, 0, 0, 0]);
 
-  // ─── 模型外观 ───
   const [modelColor, setModelColor] = useState('#6366f1');
   const [modelMetalness, setModelMetalness] = useState(0.3);
   const [modelRoughness, setModelRoughness] = useState(0.5);
   const [modelWireframe, setModelWireframe] = useState(false);
   const [modelOpacity, setModelOpacity] = useState(1.0);
 
-  // ─── 安全系统 ───
   const [safetyEnabled, setSafetyEnabled] = useState(true);
   const [safetyStatus, setSafetyStatus] = useState<{ isSafe: boolean; warnings: string[] }>({ isSafe: true, warnings: [] });
 
-  // ─── 初始化 3D 场景 ───
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -136,7 +126,6 @@ export function OperationPage() {
       addLog('success', 'GLB模型加载完成 · 机械臂初始化成功');
     });
 
-    // 安全回调
     arm.onSafetyWarning = (msg) => addLog('warning', msg);
     arm.onSafetyViolation = (jointName, req, clamped) => {
       setJointConfigs(arm.getJointConfigs());
@@ -177,7 +166,6 @@ export function OperationPage() {
     };
   }, []);
 
-  // ─── 视角切换 ───
   const switchView = useCallback((mode: ViewMode) => {
     const cam = camRef.current;
     const ctrl = ctrlRef.current;
@@ -195,7 +183,6 @@ export function OperationPage() {
     addLog('debug', `视角切换: ${mode}`);
   }, []);
 
-  // ─── 关节手动控制 ───
   const setJoint = useCallback((name: string, deg: number) => {
     if (isPlaying) return;
     armRef.current?.setJointAngleSafe(name, deg);
@@ -216,7 +203,6 @@ export function OperationPage() {
     setGripperConfigs(armRef.current?.getGripperConfigs() ?? []);
   }, [isPlaying]);
 
-  // ─── 轴辅助 ───
   const toggleAxis = useCallback(() => {
     const v = !axisHelper;
     setAxisHelper(v);
@@ -227,14 +213,12 @@ export function OperationPage() {
     });
   }, [axisHelper]);
 
-  // ─── 轨迹 ───
   const toggleTrajectory = useCallback(() => {
     const v = !trajectoryVisible;
     setTrajectoryVisible(v);
     armRef.current?.showTrajectory(v);
   }, [trajectoryVisible]);
 
-  // ─── 模型外观 ───
   const applyModelAppearance = useCallback((color: string, metalness: number, roughness: number, wireframe: boolean, opacity: number) => {
     const arm = armRef.current;
     if (!arm?.model) return;
@@ -292,7 +276,6 @@ export function OperationPage() {
     addLog('debug', '模型外观已重置');
   }, [applyModelAppearance]);
 
-  // ─── 重置 ───
   const resetToIdle = useCallback(() => {
     armRef.current?.resetAll(() => {
       setJointConfigs(armRef.current?.getJointConfigs() ?? []);
@@ -304,7 +287,6 @@ export function OperationPage() {
     addLog('info', '机械臂归零 (idle pose)');
   }, []);
 
-  // ─── 安全系统 ───
   const toggleSafety = useCallback(() => {
     const arm = armRef.current;
     if (!arm) return;
@@ -335,7 +317,6 @@ export function OperationPage() {
     setSafetyStatus(arm.getSafetyStatus());
   }, []);
 
-  // ─── 预设动作加载 ───
   const loadAction = useCallback(async (key: string) => {
     const action = PRESET_ACTIONS.find((a) => a.key === key);
     if (!action) return;
@@ -357,7 +338,6 @@ export function OperationPage() {
 
   useEffect(() => { loadAction('pick_and_place'); }, []);
 
-  // ─── 播放动作序列 ───
   const playAction = useCallback(async () => {
     const arm = armRef.current;
     if (!arm || !loadedSequence) return;
@@ -372,7 +352,6 @@ export function OperationPage() {
     setIsPaused(false);
     addLog('info', `执行动作序列 · ${loadedSequence.frames.length} 帧`);
 
-    // 安全预检：计算所有帧的目标角度，检查是否有不安全帧
     let unsafeFrames = 0;
     if (arm.safetyEnabled) {
       const backupAngles = arm.getJointConfigs().map((c) => c.currentAngle);
@@ -396,7 +375,6 @@ export function OperationPage() {
     const totalTime = frames[frames.length - 1].time;
     let timeTick = 0;
 
-    // 使用 GSAP timeline 执行
     const tl = gsap.timeline({
       onUpdate: () => {
         const progress = tl.progress();
@@ -469,7 +447,6 @@ export function OperationPage() {
     setIsPlaying(true);
     armRef.current?.startTrajectory();
     addLog('debug', '动作恢复');
-    // 简单恢复：从当前位置继续执行剩余帧
     const arm = armRef.current;
     if (!arm || !loadedSequence) return;
     const frames = loadedSequence.frames;
@@ -558,7 +535,6 @@ export function OperationPage() {
     });
   }, []);
 
-  // ─── 进度条拖拽 ───
   const handleProgressDrag = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (isPlaying) return;
     const v = parseFloat(e.target.value);
@@ -611,7 +587,6 @@ export function OperationPage() {
     setGripperConfigs(arm.getGripperConfigs());
   }, [isPlaying, loadedSequence]);
 
-  // ─── 文件上传 ───
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -641,133 +616,134 @@ export function OperationPage() {
     addLog('info', '已重置上传，恢复预设动作');
   }, [selectedAction, loadAction]);
 
-  // ─── 选中的动作信息 ───
   const selectedActionInfo = PRESET_ACTIONS.find((a) => a.key === selectedAction);
-
-  // ─── 关节标签 ───
   const jointLabels = ['J1 底座', 'J2 肩部', 'J3 肘部1', 'J4 肘部2', 'J5 腕部'];
 
   return (
     <div className="relative flex h-[calc(100vh-3.5rem)] overflow-hidden">
-      {/* ========== 3D 场景 ========== */}
       <div ref={containerRef} className="relative flex-1">
         <canvas ref={canvasRef} className="block h-full w-full" />
 
-        {/* 视角切换按钮 */}
-        <div className="absolute right-4 top-4 flex gap-1">
-          {([
-            { mode: 'default' as ViewMode, label: '默认' },
-            { mode: 'front' as ViewMode, label: '前视' },
-            { mode: 'top' as ViewMode, label: '俯视' },
-            { mode: 'side' as ViewMode, label: '侧视' },
-          ]).map(({ mode, label }) => (
+        <div className="absolute right-4 top-4 flex flex-col gap-2">
+          <div className="flex gap-1">
+            {([
+              { mode: 'default' as ViewMode, label: '默认' },
+              { mode: 'front' as ViewMode, label: '前视' },
+              { mode: 'top' as ViewMode, label: '俯视' },
+              { mode: 'side' as ViewMode, label: '侧视' },
+            ]).map(({ mode, label }) => (
+              <button
+                key={mode}
+                onClick={() => switchView(mode)}
+                className={`rounded-xl px-3 py-2 text-xs font-medium transition-all ${
+                  viewMode === mode
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg shadow-indigo-500/30'
+                    : 'glass text-white/70 hover:bg-white/[0.1]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
             <button
-              key={mode}
-              onClick={() => switchView(mode)}
-              className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
-                viewMode === mode
-                  ? 'bg-indigo-500 text-white shadow-md'
-                  : 'glass text-white/70 hover:bg-white/[0.08]'
+              onClick={toggleSafety}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all ${
+                safetyEnabled
+                  ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-gradient-to-r from-rose-500/20 to-red-500/20 text-rose-300 border border-rose-500/30'
               }`}
             >
-              {label}
+              <Shield className="h-3.5 w-3.5" />
+              {safetyEnabled ? '安全模式' : '无保护'}
             </button>
-          ))}
+            {!safetyStatus.isSafe && (
+              <button
+                onClick={restoreToSafe}
+                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-3 py-2 text-xs font-medium text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 transition-all"
+              >
+                <AlertTriangle className="h-3.5 w-3.5" />
+                回归安全位
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* 安全状态指示器 */}
-        <div className="absolute right-4 top-14 flex items-center gap-2">
-          <button
-            onClick={toggleSafety}
-            className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all shadow-sm ${
-              safetyEnabled
-                ? 'bg-emerald-500/90 text-white'
-                : 'bg-rose-400/90 text-white'
-            }`}
-          >
-            <span className={`inline-block h-1.5 w-1.5 rounded-full ${safetyEnabled ? 'bg-white/[0.06] animate-pulse' : 'bg-white/[0.06]'}`} />
-            {safetyEnabled ? '安全模式' : '无保护'}
-          </button>
-          {!safetyStatus.isSafe && (
-            <button
-              onClick={restoreToSafe}
-              className="rounded-lg bg-amber-500/90 px-2.5 py-1.5 text-xs font-medium text-white transition-all hover:bg-amber-600 shadow-sm"
-            >
-              回归安全位
-            </button>
-          )}
-        </div>
-
-        {/* 返回按钮 */}
         <button
           onClick={() => navigate('/playground')}
-          className="absolute left-4 top-4 flex items-center gap-1.5 rounded-lg glass px-3 py-1.5 text-xs font-medium text-white/70 hover:bg-white/[0.08] transition-all"
+          className="absolute left-4 top-4 flex items-center gap-2 rounded-xl glass px-4 py-2 text-sm font-medium text-white/70 hover:bg-white/[0.1] transition-all"
         >
-          <ArrowLeft className="h-3.5 w-3.5" />
+          <ArrowLeft className="h-4 w-4" />
           返回
         </button>
 
-        {/* 播放状态指示器 */}
         {isPlaying && (
-          <div className="absolute left-1/2 top-4 -translate-x-1/2 flex items-center gap-2 rounded-full glass px-4 py-1.5 shadow-md">
+          <div className="absolute left-1/2 top-4 -translate-x-1/2 flex items-center gap-2 rounded-full glass px-4 py-2 shadow-lg">
             <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-            <span className="text-xs font-semibold text-emerald-700">
+            <span className="text-xs font-semibold text-white/80">
               {isPaused ? '已暂停' : '执行中'}
             </span>
           </div>
         )}
       </div>
 
-      {/* ========== 控制面板 ========== */}
-      <div className={`flex flex-col border-l border-white/[0.08] bg-slate-900/70 backdrop-blur-xl transition-all duration-300 ${
-        controlPanelOpen ? 'w-[280px]' : 'w-0 overflow-hidden border-l-0'
+      <div className={`flex flex-col border-l border-white/[0.08] bg-slate-900/80 backdrop-blur-2xl transition-all duration-300 ${
+        controlPanelOpen ? 'w-[320px]' : 'w-0 overflow-hidden border-l-0'
       }`}>
         {controlPanelOpen && (
           <div className="flex flex-1 flex-col overflow-y-auto">
-            {/* 面板头部 */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
-              <h2 className="text-sm font-semibold text-white/80">控制面板</h2>
+            <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20">
+                  <Settings2 className="h-4 w-4 text-indigo-300" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-white/90">控制面板</h2>
+                  <p className="text-[10px] text-white/40">3D 机械臂操控</p>
+                </div>
+              </div>
               <button
                 onClick={() => setControlPanelOpen(false)}
-                className="rounded p-1 text-white/40 hover:bg-white/[0.06] hover:text-white/70"
+                className="rounded-xl p-2 text-white/40 hover:bg-white/[0.06] hover:text-white/70 transition-all"
               >
-                <Minimize2 className="h-3.5 w-3.5" />
+                <Minimize2 className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="flex-1 space-y-3 overflow-y-auto p-3">
-              {/* ─── 关节控制 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
+            <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
                 <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-white/70">关节控制</h3>
                   <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-1 text-[10px] text-white/40 cursor-pointer">
+                    <Camera className="h-4 w-4 text-white/40" />
+                    <h3 className="text-xs font-semibold text-white/80">关节控制</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <label className="flex items-center gap-1.5 text-[10px] text-white/40 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={safetyEnabled}
                         onChange={toggleSafety}
                         className="h-3 w-3 rounded accent-emerald-500"
                       />
-                      安全
+                      <span className={safetyEnabled ? 'text-emerald-400' : 'text-rose-400'}>安全</span>
                     </label>
                     <label className="flex items-center gap-1.5 text-[10px] text-white/40 cursor-pointer">
-                      <input type="checkbox" checked={axisHelper} onChange={toggleAxis} className="h-3 w-3 rounded" />
+                      <input type="checkbox" checked={axisHelper} onChange={toggleAxis} className="h-3 w-3 rounded accent-indigo-500" />
                       轴辅助
                     </label>
                   </div>
                 </div>
-                {/* 安全警告 */}
                 {!safetyStatus.isSafe && safetyEnabled && (
-                  <div className="mb-2 rounded-lg bg-amber-50 px-2 py-1.5 text-[10px] text-amber-700">
-                    <button onClick={restoreToSafe} className="font-medium underline hover:text-amber-900">
+                  <div className="mb-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 px-3 py-2 border border-amber-500/20">
+                    <button onClick={restoreToSafe} className="flex items-center gap-1 text-[10px] font-medium text-amber-300 hover:text-amber-200 transition-colors">
+                      <AlertTriangle className="h-3 w-3" />
                       点击回归安全位
                     </button>
-                    {safetyStatus.warnings.slice(0, 2).map((w, i) => (
-                      <p key={i} className="text-amber-500">{w}</p>
-                    ))}
                   </div>
                 )}
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {jointConfigs.map((cfg, i) => (
                     <div key={cfg.name} className="flex items-center gap-2">
                       <span className="w-16 text-[10px] font-medium text-white/50">{jointLabels[i]}</span>
@@ -779,7 +755,7 @@ export function OperationPage() {
                         value={cfg.currentAngle}
                         disabled={isPlaying}
                         onChange={(e) => setJoint(cfg.name, parseFloat(e.target.value))}
-                        className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-indigo-500"
+                        className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-indigo-500"
                       />
                       <span className="w-10 text-right font-mono text-[10px] text-white/70">{cfg.currentAngle.toFixed(0)}°</span>
                     </div>
@@ -787,11 +763,13 @@ export function OperationPage() {
                 </div>
               </div>
 
-              {/* ─── 夹爪控制 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
-                <h3 className="mb-2 text-xs font-semibold text-white/70">夹爪控制</h3>
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
                 <div className="flex items-center gap-2">
-                  <Grip className="h-3.5 w-3.5 text-white/40" />
+                  <Grip className="h-4 w-4 text-amber-400" />
+                  <h3 className="text-xs font-semibold text-white/80">夹爪控制</h3>
+                </div>
+                <div className="mt-3 flex items-center gap-2">
                   <input
                     type="range"
                     min={0}
@@ -800,30 +778,32 @@ export function OperationPage() {
                     value={gripperOpenness}
                     disabled={isPlaying}
                     onChange={(e) => setGripperOpen(parseFloat(e.target.value))}
-                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
+                    className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                   />
-                  <span className="w-10 text-right font-mono text-[10px] text-white/70">
+                  <span className="w-12 text-right font-mono text-[10px] text-white/70">
                     {gripperOpenness === 0 ? '闭合' : gripperOpenness === 1 ? '张开' : `${(gripperOpenness * 100).toFixed(0)}%`}
                   </span>
                 </div>
               </div>
 
-              {/* ─── 预设动作 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
-                <h3 className="mb-3 text-xs font-semibold text-white/70">预设动作</h3>
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
+                <div className="flex items-center gap-2">
+                  <Play className="h-4 w-4 text-emerald-400" />
+                  <h3 className="text-xs font-semibold text-white/80">预设动作</h3>
+                </div>
 
-                {/* 动作选择 */}
                 {!uploadedFile ? (
-                  <div className="mb-3 flex gap-1">
+                  <div className="mt-3 flex gap-2">
                     {PRESET_ACTIONS.map((a) => (
                       <button
                         key={a.key}
                         onClick={() => loadAction(a.key)}
                         disabled={isPlaying}
-                        className={`flex-1 rounded-lg px-2 py-1.5 text-[10px] font-medium transition-all ${
+                        className={`flex-1 rounded-xl px-3 py-2 text-xs font-medium transition-all ${
                           selectedAction === a.key
-                            ? 'bg-indigo-500 text-white shadow-sm'
-                            : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.06]'
+                            ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 border border-indigo-500/30'
+                            : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.1]'
                         } ${isPlaying ? 'opacity-40' : ''}`}
                       >
                         {a.label}
@@ -831,51 +811,52 @@ export function OperationPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="mb-3 flex items-center gap-2">
-                    <span className="text-[10px] text-indigo-300 font-medium">已上传自定义动作</span>
-                    <button onClick={resetUpload} className="text-[10px] text-white/40 hover:text-white/70 underline">重置</button>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-indigo-300">已上传自定义动作</span>
+                    <button onClick={resetUpload} className="flex items-center gap-1 text-[10px] text-white/40 hover:text-white/70 transition-colors">
+                      <RefreshCw className="h-3 w-3" />
+                      重置
+                    </button>
                   </div>
                 )}
 
-                {/* 播放/暂停/停止 */}
-                <div className="mb-3 flex gap-2">
+                <div className="mt-3 flex gap-2">
                   <button
                     onClick={isPlaying ? pausePlayback : playAction}
                     disabled={!loadedSequence}
-                    className={`flex flex-1 items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all ${
                       isPlaying && !isPaused
-                        ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
-                        : 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm'
+                        ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-300 border border-amber-500/30'
+                        : 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/30'
                     } ${!loadedSequence ? 'opacity-40' : ''}`}
                   >
-                    {isPlaying && !isPaused ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+                    {isPlaying && !isPaused ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
                     {isPlaying && !isPaused ? '暂停' : '执行'}
                   </button>
                   <button
                     onClick={stopAction}
                     disabled={!isPlaying && !isPaused}
-                    className={`flex flex-1 items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-medium transition-all ${
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all ${
                       isPlaying || isPaused
-                        ? 'bg-rose-100 text-rose-600 hover:bg-rose-200'
+                        ? 'bg-gradient-to-r from-rose-500/20 to-red-500/20 text-rose-300 border border-rose-500/30'
                         : 'bg-white/[0.06] text-white/40'
                     }`}
                   >
-                    <Square className="h-3 w-3" />
+                    <Square className="h-3.5 w-3.5" />
                     停止
                   </button>
                   <button
                     onClick={resetToIdle}
                     disabled={isPlaying}
-                    className={`flex items-center justify-center gap-1 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
-                      isPlaying ? 'bg-white/[0.06] text-white/40' : 'bg-white/[0.06] text-white/70 hover:bg-white/[0.06]'
+                    className={`flex items-center justify-center gap-1.5 rounded-xl px-2.5 py-2 text-xs font-medium transition-all ${
+                      isPlaying ? 'bg-white/[0.06] text-white/40' : 'bg-white/[0.06] text-white/60 hover:bg-white/[0.1]'
                     }`}
                   >
-                    <RotateCcw className="h-3 w-3" />
+                    <RotateCcw className="h-3.5 w-3.5" />
                   </button>
                 </div>
 
-                {/* 进度条 */}
-                <div className="mb-2 flex items-center gap-2">
+                <div className="mt-3 flex items-center gap-2">
                   <span className="text-[10px] text-white/40">进度</span>
                   <input
                     type="range"
@@ -885,27 +866,29 @@ export function OperationPage() {
                     value={actionProgress}
                     disabled={isPlaying}
                     onChange={handleProgressDrag}
-                    className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-indigo-500"
+                    className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-indigo-500"
                   />
-                  <span className="font-mono text-[10px] text-white/50">{(actionProgress * 100).toFixed(0)}%</span>
+                  <span className="font-mono text-[10px] text-white/60">{(actionProgress * 100).toFixed(0)}%</span>
                 </div>
 
-                {/* 状态信息 */}
-                <div className="flex items-center gap-4 text-[10px] text-white/40">
-                  <span>帧: {currentFrameId}</span>
-                  <span>夹爪: {gripperState ? '闭合' : '张开'}</span>
+                <div className="mt-2 flex items-center gap-4 text-[10px] text-white/40">
+                  <span>帧: <span className="text-white/60 font-mono">{currentFrameId}</span></span>
+                  <span>夹爪: <span className={gripperState ? 'text-rose-400' : 'text-emerald-400'}>{gripperState ? '闭合' : '张开'}</span></span>
                 </div>
               </div>
 
-              {/* ─── 轨迹可视化 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-500" />
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-white/70">轨迹可视化</h3>
-                  <div className="flex gap-1">
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-violet-400" />
+                    <h3 className="text-xs font-semibold text-white/80">轨迹可视化</h3>
+                  </div>
+                  <div className="flex gap-1.5">
                     <button
                       onClick={toggleTrajectory}
-                      className={`flex items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium transition-all ${
-                        trajectoryVisible ? 'bg-indigo-500/20 text-indigo-300' : 'bg-white/[0.06] text-white/50'
+                      className={`flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[10px] font-medium transition-all ${
+                        trajectoryVisible ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300' : 'bg-white/[0.06] text-white/50'
                       }`}
                     >
                       {trajectoryVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
@@ -913,7 +896,7 @@ export function OperationPage() {
                     </button>
                     <button
                       onClick={() => { armRef.current?.clearTrajectory(); addLog('debug', '轨迹已清除'); }}
-                      className="rounded-lg bg-white/[0.06] px-2 py-1 text-[10px] text-white/50 hover:bg-white/[0.06]"
+                      className="rounded-xl bg-white/[0.06] px-2.5 py-1.5 text-[10px] text-white/50 hover:bg-white/[0.1] transition-all"
                     >
                       清除
                     </button>
@@ -921,9 +904,12 @@ export function OperationPage() {
                 </div>
               </div>
 
-              {/* ─── 文件上传 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
-                <h3 className="mb-2 text-xs font-semibold text-white/70">上传动作文件</h3>
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+                <div className="flex items-center gap-2">
+                  <Upload className="h-4 w-4 text-blue-400" />
+                  <h3 className="text-xs font-semibold text-white/80">上传动作文件</h3>
+                </div>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -933,37 +919,38 @@ export function OperationPage() {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-lg bg-white/[0.06] px-3 py-2 text-[10px] font-medium text-white/70 hover:bg-white/[0.06] transition-all"
+                  className="mt-3 w-full rounded-xl bg-white/[0.06] px-4 py-2.5 text-xs font-medium text-white/60 hover:bg-white/[0.1] transition-all"
                 >
                   选择 JSON 文件
                 </button>
               </div>
 
-              {/* ─── 模型外观 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
-                <div className="mb-3 flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-white/70">模型外观</h3>
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="h-4 w-4 text-pink-400" />
+                    <h3 className="text-xs font-semibold text-white/80">模型外观</h3>
+                  </div>
                   <button
                     onClick={resetModelAppearance}
-                    className="rounded px-1.5 py-0.5 text-[10px] text-white/40 hover:bg-white/[0.06] hover:text-white/70"
+                    className="flex items-center gap-1 rounded-xl px-2 py-1 text-[10px] text-white/40 hover:bg-white/[0.06] hover:text-white/70 transition-all"
                   >
+                    <RefreshCw className="h-3 w-3" />
                     重置
                   </button>
                 </div>
-                <div className="space-y-2.5">
-                  {/* 颜色 */}
+                <div className="mt-3 space-y-3">
                   <div className="flex items-center gap-2">
                     <span className="w-12 text-[10px] text-white/50">颜色</span>
                     <input
                       type="color"
                       value={modelColor}
                       onChange={(e) => handleColorChange(e.target.value)}
-                      className="h-5 w-7 cursor-pointer rounded border-0 p-0"
+                      className="h-6 w-8 cursor-pointer rounded-lg border-0 p-0"
                     />
                     <span className="font-mono text-[10px] text-white/40">{modelColor}</span>
                   </div>
-
-                  {/* 金属度 */}
                   <div className="flex items-center gap-2">
                     <span className="w-12 text-[10px] text-white/50">金属度</span>
                     <input
@@ -973,12 +960,10 @@ export function OperationPage() {
                       step={0.01}
                       value={modelMetalness}
                       onChange={(e) => handleMetalnessChange(parseFloat(e.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
+                      className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                     />
                     <span className="w-8 text-right font-mono text-[10px] text-white/50">{modelMetalness.toFixed(2)}</span>
                   </div>
-
-                  {/* 粗糙度 */}
                   <div className="flex items-center gap-2">
                     <span className="w-12 text-[10px] text-white/50">粗糙度</span>
                     <input
@@ -988,12 +973,10 @@ export function OperationPage() {
                       step={0.01}
                       value={modelRoughness}
                       onChange={(e) => handleRoughnessChange(parseFloat(e.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
+                      className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                     />
                     <span className="w-8 text-right font-mono text-[10px] text-white/50">{modelRoughness.toFixed(2)}</span>
                   </div>
-
-                  {/* 透明度 */}
                   <div className="flex items-center gap-2">
                     <span className="w-12 text-[10px] text-white/50">透明度</span>
                     <input
@@ -1003,12 +986,10 @@ export function OperationPage() {
                       step={0.01}
                       value={modelOpacity}
                       onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
-                      className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
+                      className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-amber-500"
                     />
                     <span className="w-8 text-right font-mono text-[10px] text-white/50">{modelOpacity.toFixed(2)}</span>
                   </div>
-
-                  {/* 线框模式 */}
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -1021,13 +1002,16 @@ export function OperationPage() {
                 </div>
               </div>
 
-              {/* ─── 关节角度实时显示 ─── */}
-              <div className="rounded-xl bg-white/[0.04] p-3">
-                <h3 className="mb-2 text-xs font-semibold text-white/70">实时角度 (°)</h3>
-                <div className="grid grid-cols-5 gap-1">
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500" />
+                <div className="flex items-center gap-2">
+                  <Camera className="h-4 w-4 text-cyan-400" />
+                  <h3 className="text-xs font-semibold text-white/80">实时角度 (°)</h3>
+                </div>
+                <div className="mt-3 grid grid-cols-5 gap-1.5">
                   {jointDegrees.map((v, i) => (
-                    <div key={i} className="rounded-lg bg-white/[0.06] px-1.5 py-1 text-center">
-                      <p className="text-[9px] text-white/40">{jointLabels[i]}</p>
+                    <div key={i} className="rounded-xl bg-white/[0.06] px-2 py-1.5 text-center">
+                      <p className="text-[9px] text-white/40">{jointLabels[i].split(' ')[0]}</p>
                       <p className="font-mono text-[10px] font-semibold text-white/80">{v.toFixed(1)}</p>
                     </div>
                   ))}
@@ -1038,17 +1022,15 @@ export function OperationPage() {
         )}
       </div>
 
-      {/* 控制面板开关按钮 */}
       {!controlPanelOpen && (
         <button
           onClick={() => setControlPanelOpen(true)}
-          className="absolute right-0 top-1/2 -translate-y-1/2 rounded-l-lg bg-slate-900/70 backdrop-blur-sm border border-r-0 border-white/[0.08] px-1.5 py-4 text-white/40 hover:text-white/70 shadow-sm"
+          className="absolute right-0 top-1/2 -translate-y-1/2 rounded-l-xl glass px-2 py-6 text-white/40 hover:text-white/70 transition-all"
         >
-          <Maximize2 className="h-3.5 w-3.5" />
+          <Maximize2 className="h-4 w-4" />
         </button>
       )}
 
-      {/* ========== 系统日志 ========== */}
       <SystemLog
         entries={logEntries}
         expanded={logExpanded}

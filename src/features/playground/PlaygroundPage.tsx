@@ -9,7 +9,6 @@ import { SystemLog, type LogEntry } from './SystemLog';
 export function PlaygroundPage() {
   const navigate = useNavigate();
 
-  // ─── 日志 ───
   const [logEntries, setLogEntries] = useState<LogEntry[]>([]);
   const [logExpanded, setLogExpanded] = useState(false);
   const addLog = useCallback((type: LogEntry['type'], message: string) => {
@@ -19,7 +18,6 @@ export function PlaygroundPage() {
     ]);
   }, []);
 
-  // ─── 3D Refs ───
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const armRef = useRef<RobotArm | null>(null);
   const afRef = useRef(0);
@@ -27,7 +25,6 @@ export function PlaygroundPage() {
   const [jointDegrees, setJointDegrees] = useState<number[]>([0, 0, 0, 0, 0]);
   const [modelLoaded, setModelLoaded] = useState(false);
 
-  // ─── 初始化迷你3D场景 ───
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -93,39 +90,25 @@ export function PlaygroundPage() {
   const jointLabels = ['J1 底座', 'J2 肩部', 'J3 肘部1', 'J4 肘部2', 'J5 腕部'];
 
   return (
-    <section className="space-y-4 pt-2">
-      {/* 头部 */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs tracking-[0.4em] text-white/40 uppercase">OpenCLaw · Industrial Robot</p>
-          <h1 className="mt-2 text-3xl font-bold text-white">3D 操控台</h1>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
-            GLB高精模型 · GSAP动画引擎 · 参考 robot-arm-sim 架构
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLogExpanded((v) => !v)}
-            className={`glass-btn px-3 py-2 text-sm font-medium ${logExpanded ? 'glass-btn-indigo text-indigo-300' : 'text-white/50'}`}
-          >
-            <Terminal className="mr-1 inline h-3.5 w-3.5" />
-            日志
-            {logEntries.length > 0 && ` (${logEntries.length})`}
-          </button>
-        </div>
+    <section className="space-y-5 pt-2">
+      <div>
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <h1 className="mt-2 text-3xl font-bold text-white glow-text">3D 操控台</h1>
+        <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
+          GLB高精模型 · GSAP动画引擎 · 沉浸式3D交互体验
+        </p>
       </div>
 
-      {/* 3D 迷你预览 */}
       <div className="relative overflow-hidden rounded-2xl glass shadow-lg" style={{ height: '380px' }}>
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
         <div ref={containerRef} className="h-full w-full">
           <canvas ref={canvasRef} className="block h-full w-full" />
         </div>
 
-        {/* 进入实操按钮 */}
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none">
           <button
             onClick={() => navigate('/operation')}
-            className="pointer-events-auto flex items-center gap-3 rounded-2xl bg-indigo-500/200/90 px-8 py-4 text-white shadow-2xl backdrop-blur-sm transition-all hover:bg-indigo-600 hover:scale-105 hover:shadow-indigo-500/30 active:scale-95"
+            className="pointer-events-auto flex items-center gap-3 rounded-2xl bg-gradient-to-r from-indigo-500/25 to-purple-500/25 px-8 py-4 text-white shadow-2xl backdrop-blur-md border border-white/[0.15] transition-all hover:bg-gradient-to-r hover:from-indigo-500/35 hover:to-purple-500/35 hover:scale-105 hover:shadow-indigo-500/30 active:scale-95"
           >
             <Maximize2 className="h-5 w-5" />
             <div className="text-left">
@@ -135,7 +118,6 @@ export function PlaygroundPage() {
           </button>
         </div>
 
-        {/* 模型加载提示 */}
         {!modelLoaded && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/[0.06] backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3">
@@ -146,12 +128,20 @@ export function PlaygroundPage() {
         )}
       </div>
 
-      {/* 关节角度实时显示 */}
-      <div className="rounded-2xl glass p-4 shadow-lg">
-        <h3 className="mb-3 text-sm font-semibold text-white/80">实时关节角度 (°)</h3>
+      <div className="relative overflow-hidden rounded-2xl glass p-4 shadow-lg">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
+            <Terminal className="h-4 w-4 text-emerald-300" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white/90">实时关节角度</h3>
+            <p className="text-[10px] text-white/40">单位：度 (°)</p>
+          </div>
+        </div>
         <div className="grid grid-cols-5 gap-2">
           {jointDegrees.map((v, i) => (
-            <div key={i} className="rounded-xl bg-white/[0.06] px-2 py-2 text-center">
+            <div key={i} className="rounded-xl bg-white/[0.06] px-2 py-2 text-center transition-all hover:bg-white/[0.1]">
               <p className="text-[10px] text-white/40">{jointLabels[i]}</p>
               <p className="font-mono text-sm font-bold text-white/80">{v.toFixed(1)}</p>
             </div>
@@ -159,22 +149,27 @@ export function PlaygroundPage() {
         </div>
       </div>
 
-      {/* 功能特性介绍 */}
-      <div className="rounded-2xl glass p-5 shadow-lg">
-        <div className="mb-3 flex items-center gap-2">
-          <Info className="h-4 w-4 text-indigo-300" />
-          <h3 className="text-sm font-semibold text-white/80">实操功能</h3>
+      <div className="relative overflow-hidden rounded-2xl glass p-5 shadow-lg">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-500" />
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20">
+            <Info className="h-4 w-4 text-violet-300" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white/90">实操功能</h3>
+            <p className="text-[10px] text-white/40">完整的机械臂操控能力</p>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-3 text-xs text-white/50">
           {[
-            { title: '关节控制', desc: '5轴关节独立滑块调节', icon: '🎮' },
-            { title: '预设动作', desc: '内置抓取&放置、示例动作', icon: '🎬' },
-            { title: '视角切换', desc: '默认/前视/俯视/侧视', icon: '📷' },
-            { title: '轨迹可视化', desc: '实时显示末端执行器路径', icon: '📍' },
-            { title: '文件上传', desc: '支持自定义JSON动作序列', icon: '📁' },
-            { title: '系统日志', desc: '可开关的实时操作日志', icon: '📋' },
+            { title: '关节控制', desc: '5轴关节独立滑块调节', icon: '🎮', color: 'indigo' },
+            { title: '预设动作', desc: '内置抓取&放置、示例动作', icon: '🎬', color: 'purple' },
+            { title: '视角切换', desc: '默认/前视/俯视/侧视', icon: '📷', color: 'pink' },
+            { title: '轨迹可视化', desc: '实时显示末端执行器路径', icon: '📍', color: 'teal' },
+            { title: '文件上传', desc: '支持自定义JSON动作序列', icon: '📁', color: 'amber' },
+            { title: '系统日志', desc: '可开关的实时操作日志', icon: '📋', color: 'blue' },
           ].map((f) => (
-            <div key={f.title} className="flex items-start gap-2 rounded-lg bg-white/[0.06] p-3">
+            <div key={f.title} className="flex items-start gap-2 rounded-xl bg-white/[0.06] p-3 transition-all hover:bg-white/[0.1] hover:-translate-y-0.5">
               <span className="text-base">{f.icon}</span>
               <div>
                 <p className="font-medium text-white/80">{f.title}</p>
@@ -185,17 +180,24 @@ export function PlaygroundPage() {
         </div>
       </div>
 
-      {/* 技术栈 */}
-      <div className="rounded-2xl glass p-4 shadow-lg">
-        <h3 className="mb-2 text-sm font-semibold text-white/80">技术栈</h3>
+      <div className="relative overflow-hidden rounded-2xl glass p-4 shadow-lg">
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+            <Terminal className="h-4 w-4 text-blue-300" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white/90">技术栈</h3>
+            <p className="text-[10px] text-white/40">构建现代化3D交互体验</p>
+          </div>
+        </div>
         <div className="flex flex-wrap gap-2 text-[10px]">
           {['Three.js', 'GSAP', 'GLTF', 'React', 'TypeScript', 'OrbitControls', 'PBR'].map((t) => (
-            <span key={t} className="rounded-full bg-indigo-500/20 px-2.5 py-1 font-medium text-indigo-300">{t}</span>
+            <span key={t} className="rounded-full bg-indigo-500/20 px-3 py-1 font-medium text-indigo-300 border border-indigo-500/30">{t}</span>
           ))}
         </div>
       </div>
 
-      {/* 系统日志 */}
       <SystemLog
         entries={logEntries}
         expanded={logExpanded}

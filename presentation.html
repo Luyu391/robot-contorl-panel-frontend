@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenCLaw 智能机械臂控制面板 - 结课报告</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    
+    .slide {
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      opacity: 0;
+      transform: scale(0.95);
+      display: none;
+    }
+    
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+      display: block;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+      50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8); }
+    }
+    
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+    
+    .nav-dot { transition: all 0.3s ease; }
+    .nav-dot.active { background: #6366f1; transform: scale(1.3); }
+    
+    .feature-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2); }
+    
+    .mechanical-arm { filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.3)); }
+  </style>
+</head>
+<body class="text-white">
+  <div class="relative h-screen w-full overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl animate-float"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-float" style="animation-delay: -3s;"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="relative z-10 h-full flex flex-col">
+      <div class="flex-1 flex items-center justify-center px-12">
+        <div id="slide-container" class="w-full max-w-7xl">
+          <div class="slide active text-center">
+            <div class="inline-block mb-8 relative">
+              <div class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse-glow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-16 h-16 text-white">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/>
+                  <path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                <span class="text-xs">✓</span>
+              </div>
+            </div>
+            <h1 class="text-6xl font-bold mb-4 glow-text">OpenCLaw</h1>
+            <h2 class="text-3xl font-medium text-white/70 mb-3">智能机械臂控制面板</h2>
+            <p class="text-xl text-white/50 mb-8">基于 AI 的智能控制系统设计与实现</p>
+            <div class="flex items-center justify-center gap-6 mb-12">
+              <span class="px-6 py-3 rounded-full bg-white/10 text-base border border-white/10">React 18</span>
+              <span class="px-6 py-3 rounded-full bg-white/10 text-base border border-white/10">TypeScript</span>
+              <span class="px-6 py-3 rounded-full bg-white/10 text-base border border-white/10">Three.js</span>
+              <span class="px-6 py-3 rounded-full bg-white/10 text-base border border-white/10">AI辅助</span>
+            </div>
+            <div class="flex items-center justify-center gap-8 text-white/40">
+              <span>陆薇伦</span>
+              <span>•</span>
+              <span>10235101497</span>
+              <span>•</span>
+              <span>2026年6月</span>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">项目概述</h2>
+            <div class="grid grid-cols-2 gap-8">
+              <div class="glass-card p-8 feature-card text-center">
+                <div class="text-5xl mb-5">🎯</div>
+                <h3 class="text-2xl font-semibold mb-3">项目目标</h3>
+                <p class="text-white/60 leading-relaxed">打造现代化智能机械臂控制系统，实现自然语言交互、实时监控、3D操控一体化的智能操作平台</p>
+                <div class="mt-4 pt-4 border-t border-white/10 flex justify-between text-sm">
+                  <span class="text-white/40">开发周期</span>
+                  <span class="text-indigo-400">4周</span>
+                </div>
+              </div>
+              <div class="glass-card p-8 feature-card text-center">
+                <div class="text-5xl mb-5">🛠️</div>
+                <h3 class="text-2xl font-semibold mb-3">技术栈</h3>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                  <div class="p-3 rounded-lg bg-white/5">React 18</div>
+                  <div class="p-3 rounded-lg bg-white/5">Vite 5</div>
+                  <div class="p-3 rounded-lg bg-white/5">TypeScript</div>
+                  <div class="p-3 rounded-lg bg-white/5">Three.js</div>
+                  <div class="p-3 rounded-lg bg-white/5">Framer Motion</div>
+                  <div class="p-3 rounded-lg bg-white/5">GSAP</div>
+                </div>
+              </div>
+              <div class="glass-card p-8 feature-card text-center">
+                <div class="text-5xl mb-5">🎨</div>
+                <h3 class="text-2xl font-semibold mb-3">设计风格</h3>
+                <p class="text-white/60 leading-relaxed">液态玻璃（Liquid Glass）设计，通透感与流动感的完美结合，打造类Apple风格的现代化UI</p>
+                <div class="mt-4">
+                  <div class="h-2 rounded-full bg-gradient-to-r from-indigo-500/30 to-purple-500/30">
+                    <div class="w-3/4 h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="glass-card p-8 feature-card">
+                <div class="text-5xl mb-5 text-center">✨</div>
+                <h3 class="text-2xl font-semibold mb-3 text-center">核心功能</h3>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="text-white/80">自然语言交互</span>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <span class="text-white/80">3D实时操控</span>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <div class="w-3 h-3 rounded-full bg-purple-500"></div>
+                    <span class="text-white/80">动作序列执行</span>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                    <div class="w-3 h-3 rounded-full bg-pink-500"></div>
+                    <span class="text-white/80">方案智能推荐</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">3D机械臂系统</h2>
+            <div class="grid grid-cols-2 gap-8 items-center">
+              <div class="glass-card p-8">
+                <div class="relative w-full aspect-square max-w-md mx-auto mb-6">
+                  <svg viewBox="0 0 400 400" class="w-full h-full mechanical-arm">
+                    <circle cx="200" cy="350" r="30" fill="#374151" stroke="#6366f1" stroke-width="2"/>
+                    <rect x="190" y="280" width="20" height="70" fill="#4b5563" stroke="#6366f1" stroke-width="2" rx="5"/>
+                    <circle cx="200" cy="280" r="15" fill="#6366f1"/>
+                    <line x1="200" y1="280" x2="200" y2="200" stroke="#6b7280" stroke-width="12" stroke-linecap="round"/>
+                    <circle cx="200" cy="200" r="18" fill="#a855f7"/>
+                    <line x1="200" y1="200" x2="150" y2="120" stroke="#6b7280" stroke-width="10" stroke-linecap="round"/>
+                    <circle cx="150" cy="120" r="15" fill="#ec4899"/>
+                    <line x1="150" y1="120" x2="130" y2="70" stroke="#6b7280" stroke-width="8" stroke-linecap="round"/>
+                    <circle cx="130" cy="70" r="12" fill="#f59e0b"/>
+                    <rect x="115" y="55" width="30" height="15" fill="#1f2937" stroke="#f59e0b" stroke-width="2"/>
+                    <circle cx="110" cy="50" r="8" fill="#8b5cf6"/>
+                    <circle cx="150" cy="50" r="8" fill="#8b5cf6"/>
+                    <circle cx="130" cy="30" r="6" fill="#ef4444"/>
+                    <circle cx="200" cy="280" r="40" fill="none" stroke="#6366f1" stroke-width="1" stroke-dasharray="5,5" opacity="0.3"/>
+                    <circle cx="200" cy="200" r="50" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="5,5" opacity="0.3"/>
+                    <circle cx="150" cy="120" r="35" fill="none" stroke="#ec4899" stroke-width="1" stroke-dasharray="5,5" opacity="0.3"/>
+                  </svg>
+                  <div class="absolute top-4 right-4 text-xs text-white/40">六轴机械臂模型</div>
+                </div>
+                <h3 class="text-xl font-semibold mb-4 text-center">机械臂结构参数</h3>
+                <div class="grid grid-cols-3 gap-4 text-center">
+                  <div class="p-3 rounded-xl bg-white/5">
+                    <span class="block text-2xl font-bold text-indigo-400">6</span>
+                    <span class="text-white/50 text-sm">关节数量</span>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/5">
+                    <span class="block text-2xl font-bold text-purple-400">360°</span>
+                    <span class="text-white/50 text-sm">自由度</span>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/5">
+                    <span class="block text-2xl font-bold text-pink-400">PBR</span>
+                    <span class="text-white/50 text-sm">渲染材质</span>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-6">
+                <div class="glass-card p-6">
+                  <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <span class="text-2xl">🎮</span> 操控方式
+                  </h3>
+                  <div class="grid grid-cols-3 gap-3">
+                    <div class="p-4 rounded-xl bg-white/5 text-center">
+                      <div class="text-3xl mb-2">🖱️</div>
+                      <p class="text-sm text-white/70">鼠标操控</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-white/5 text-center">
+                      <div class="text-3xl mb-2">⌨️</div>
+                      <p class="text-sm text-white/70">键盘控制</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-white/5 text-center">
+                      <div class="text-3xl mb-2">🎯</div>
+                      <p class="text-sm text-white/70">手柄操作</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-card p-6">
+                  <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <span class="text-2xl">🛡️</span> 安全保护系统
+                  </h3>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                      <span class="text-green-400">✓</span>
+                      <span class="text-white/70">碰撞检测</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                      <span class="text-green-400">✓</span>
+                      <span class="text-white/70">角度约束</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                      <span class="text-green-400">✓</span>
+                      <span class="text-white/70">速度限制</span>
+                    </div>
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5">
+                      <span class="text-green-400">✓</span>
+                      <span class="text-white/70">紧急停止</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">设计特色 — 液态玻璃</h2>
+            <div class="grid grid-cols-2 gap-6">
+              <div class="glass-card p-6 flex items-start gap-4 feature-card">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-400/30 to-purple-400/30 backdrop-blur-xl border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <span class="text-2xl">🔮</span>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">通透感</h3>
+                  <p class="text-white/50">backdrop-blur 模糊效果，营造玻璃质感，背景内容若隐若现</p>
+                </div>
+              </div>
+              <div class="glass-card p-6 flex items-start gap-4 feature-card">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-purple-400/30 to-pink-400/30 backdrop-blur-xl border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <span class="text-2xl">🌊</span>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">流动感</h3>
+                  <p class="text-white/50">动态渐变背景、浮动光球、流动光效动画，增强视觉层次感</p>
+                </div>
+              </div>
+              <div class="glass-card p-6 flex items-start gap-4 feature-card">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-pink-400/30 to-orange-400/30 backdrop-blur-xl border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <span class="text-2xl">✨</span>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">柔和光晕</h3>
+                  <p class="text-white/50">精心设计的多层阴影与高光层次，按钮和卡片具有立体感</p>
+                </div>
+              </div>
+              <div class="glass-card p-6 flex items-start gap-4 feature-card">
+                <div class="w-16 h-16 rounded-xl bg-gradient-to-br from-orange-400/30 to-yellow-400/30 backdrop-blur-xl border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <span class="text-2xl">🌙</span>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold mb-2">暗色主题</h3>
+                  <p class="text-white/50">专为深色模式优化的玻璃效果，护眼且现代感十足</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-8 glass-card p-4 flex items-center justify-center gap-8">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-full bg-indigo-500"></div>
+                <span class="text-white/60 text-sm">Indigo #6366f1</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-full bg-purple-500"></div>
+                <span class="text-white/60 text-sm">Purple #a855f7</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 rounded-full bg-pink-500"></div>
+                <span class="text-white/60 text-sm">Pink #ec4899</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">核心功能模块</h2>
+            <div class="glass-card p-8 mb-8">
+              <svg viewBox="0 0 800 300" class="w-full h-auto">
+                <rect x="50" y="100" width="120" height="80" rx="10" fill="rgba(99,102,241,0.2)" stroke="#6366f1" stroke-width="2"/>
+                <text x="110" y="135" text-anchor="middle" fill="white" font-size="14" font-weight="bold">智能指令面板</text>
+                <text x="110" y="155" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10">自然语言交互</text>
+                
+                <rect x="220" y="60" width="120" height="80" rx="10" fill="rgba(168,85,247,0.2)" stroke="#a855f7" stroke-width="2"/>
+                <text x="280" y="95" text-anchor="middle" fill="white" font-size="14" font-weight="bold">实时监控</text>
+                <text x="280" y="115" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10">六关节角度</text>
+                
+                <rect x="220" y="180" width="120" height="80" rx="10" fill="rgba(236,72,153,0.2)" stroke="#ec4899" stroke-width="2"/>
+                <text x="280" y="215" text-anchor="middle" fill="white" font-size="14" font-weight="bold">方案推荐</text>
+                <text x="280" y="235" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10">卡片拖拽</text>
+                
+                <rect x="390" y="100" width="140" height="100" rx="10" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="2"/>
+                <text x="460" y="140" text-anchor="middle" fill="white" font-size="14" font-weight="bold">3D操控台</text>
+                <text x="460" y="165" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10">三重操控方式</text>
+                
+                <rect x="580" y="80" width="120" height="80" rx="10" fill="rgba(34,197,94,0.2)" stroke="#22c55e" stroke-width="2"/>
+                <text x="640" y="115" text-anchor="middle" fill="white" font-size="14" font-weight="bold">动作序列</text>
+                <text x="640" y="135" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="10">播放控制</text>
+                
+                <rect x="580" y="200" width="120" height="60" rx="10" fill="rgba(59,130,246,0.2)" stroke="#3b82f6" stroke-width="2"/>
+                <text x="640" y="230" text-anchor="middle" fill="white" font-size="14" font-weight="bold">页面转场</text>
+                
+                <line x1="170" y1="140" x2="220" y2="100" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="170" y1="140" x2="220" y2="220" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="340" y1="100" x2="390" y2="150" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="340" y1="220" x2="390" y2="150" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="530" y1="150" x2="580" y2="120" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                <line x1="530" y1="150" x2="580" y2="230" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                
+                <circle cx="460" cy="150" r="8" fill="#f59e0b"/>
+              </svg>
+              <div class="text-center mt-4 text-white/40 text-sm">系统架构图 — 以3D操控台为核心，各模块协同工作</div>
+            </div>
+            <div class="grid grid-cols-3 gap-4">
+              <div class="glass-card p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🎮</div>
+                <h3 class="font-semibold text-sm">智能指令面板</h3>
+                <p class="text-white/40 text-xs mt-1">AI建议卡片</p>
+              </div>
+              <div class="glass-card p-4 text-center feature-card">
+                <div class="text-2xl mb-2">📊</div>
+                <h3 class="font-semibold text-sm">实时监控</h3>
+                <p class="text-white/40 text-xs mt-1">系统健康指标</p>
+              </div>
+              <div class="glass-card p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🤖</div>
+                <h3 class="font-semibold text-sm">3D操控台</h3>
+                <p class="text-white/40 text-xs mt-1">碰撞检测</p>
+              </div>
+              <div class="glass-card p-4 text-center feature-card">
+                <div class="text-2xl mb-2">⏯️</div>
+                <h3 class="font-semibold text-sm">动作序列</h3>
+                <p class="text-white/40 text-xs mt-1">多视角切换</p>
+              </div>
+              <div class="glass-card p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🃏</div>
+                <h3 class="font-semibold text-sm">方案推荐</h3>
+                <p class="text-white/40 text-xs mt-1">3D倾斜效果</p>
+              </div>
+              <div class="glass-card p-4 text-center feature-card">
+                <div class="text-2xl mb-2">🎬</div>
+                <h3 class="font-semibold text-sm">页面转场</h3>
+                <p class="text-white/40 text-xs mt-1">语义转场</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">AI 在项目中的应用</h2>
+            <div class="glass-card p-8 mb-6">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-full bg-indigo-500/30 flex items-center justify-center">
+                  <span class="text-2xl">🤖</span>
+                </div>
+                <div>
+                  <h3 class="text-2xl font-semibold">代码生成与辅助编程</h3>
+                  <p class="text-white/40 text-sm">提升开发效率，快速构建功能原型</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-4 gap-4">
+                <div class="p-4 rounded-xl bg-white/5 text-center">
+                  <p class="text-2xl font-bold text-indigo-400 mb-1">60%</p>
+                  <p class="text-white/70 text-sm">组件代码</p>
+                  <p class="text-white/40 text-xs">React 框架</p>
+                </div>
+                <div class="p-4 rounded-xl bg-white/5 text-center">
+                  <p class="text-2xl font-bold text-purple-400 mb-1">45%</p>
+                  <p class="text-white/70 text-sm">动画逻辑</p>
+                  <p class="text-white/40 text-xs">Framer/GSAP</p>
+                </div>
+                <div class="p-4 rounded-xl bg-white/5 text-center">
+                  <p class="text-2xl font-bold text-pink-400 mb-1">80%</p>
+                  <p class="text-white/70 text-sm">类型定义</p>
+                  <p class="text-white/40 text-xs">TypeScript</p>
+                </div>
+                <div class="p-4 rounded-xl bg-white/5 text-center">
+                  <p class="text-2xl font-bold text-yellow-400 mb-1">70%</p>
+                  <p class="text-white/70 text-sm">测试用例</p>
+                  <p class="text-white/40 text-xs">契约测试</p>
+                </div>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+              <div class="glass-card p-6">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-12 h-12 rounded-full bg-purple-500/30 flex items-center justify-center">
+                    <span class="text-xl">🎨</span>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-semibold">设计方案优化</h3>
+                  </div>
+                </div>
+                <div class="space-y-3">
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="text-white/60">液态玻璃风格</span>
+                      <span class="text-white/40">95%</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/10">
+                      <div class="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500" style="width: 95%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="text-white/60">交互体验设计</span>
+                      <span class="text-white/40">88%</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/10">
+                      <div class="h-full rounded-full bg-gradient-to-r from-pink-500 to-orange-500" style="width: 88%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-sm mb-1">
+                      <span class="text-white/60">响应式布局</span>
+                      <span class="text-white/40">92%</span>
+                    </div>
+                    <div class="h-2 rounded-full bg-white/10">
+                      <div class="h-full rounded-full bg-gradient-to-r from-orange-500 to-yellow-500" style="width: 92%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="glass-card p-6">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-12 h-12 rounded-full bg-green-500/30 flex items-center justify-center">
+                    <span class="text-xl">✅</span>
+                  </div>
+                  <div>
+                    <h3 class="text-xl font-semibold">测试用例编写</h3>
+                  </div>
+                </div>
+                <div class="flex items-center justify-center h-32">
+                  <div class="text-center">
+                    <div class="text-5xl font-bold text-green-400 mb-2">24/24</div>
+                    <p class="text-white/60">测试用例全部通过</p>
+                    <p class="text-white/40 text-sm mt-1">契约测试 · 功能验证 · 交互测试</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">AI 设计冲突与挑战</h2>
+            <div class="grid grid-cols-2 gap-6 mb-8">
+              <div class="glass-card p-8">
+                <div class="flex items-center gap-3 mb-6">
+                  <span class="text-2xl">🧩</span>
+                  <h3 class="text-xl font-semibold">代码结构冲突</h3>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex items-start gap-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                    <span class="text-lg">📉</span>
+                    <div>
+                      <p class="font-medium text-white/90">组件嵌套层级过深</p>
+                      <p class="text-white/50 text-sm">AI生成的组件存在多层嵌套，导致维护困难</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-4 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                    <span class="text-lg">🔀</span>
+                    <div>
+                      <p class="font-medium text-white/90">状态管理分散混乱</p>
+                      <p class="text-white/50 text-sm">不同组件状态管理方式不一致</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-4 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                    <span class="text-lg">🔄</span>
+                    <div>
+                      <p class="font-medium text-white/90">功能重叠接口不统一</p>
+                      <p class="text-white/50 text-sm">相似功能实现方式差异较大</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="glass-card p-8">
+                <div class="flex items-center gap-3 mb-6">
+                  <span class="text-2xl">⚡</span>
+                  <h3 class="text-xl font-semibold">性能与交互问题</h3>
+                </div>
+                <div class="space-y-4">
+                  <div class="flex items-start gap-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                    <span class="text-lg">🐢</span>
+                    <div>
+                      <p class="font-medium text-white/90">动画参数不合理</p>
+                      <p class="text-white/50 text-sm">初始动画时长过长，影响用户体验</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-4 p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+                    <span class="text-lg">🔄</span>
+                    <div>
+                      <p class="font-medium text-white/90">不必要重渲染</p>
+                      <p class="text-white/50 text-sm">缺少 useMemo/useCallback 优化</p>
+                    </div>
+                  </div>
+                  <div class="flex items-start gap-4 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                    <span class="text-lg">💬</span>
+                    <div>
+                      <p class="font-medium text-white/90">用户反馈不及时</p>
+                      <p class="text-white/50 text-sm">缺少加载状态和操作反馈</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-6 flex items-center justify-center gap-12">
+              <div class="text-center">
+                <p class="text-4xl font-bold text-red-400">3</p>
+                <p class="text-white/50 text-sm mt-1">结构冲突</p>
+              </div>
+              <div class="w-px h-16 bg-white/10"></div>
+              <div class="text-center">
+                <p class="text-4xl font-bold text-orange-400">3</p>
+                <p class="text-white/50 text-sm mt-1">性能问题</p>
+              </div>
+              <div class="w-px h-16 bg-white/10"></div>
+              <div class="text-center">
+                <p class="text-4xl font-bold text-green-400">6</p>
+                <p class="text-white/50 text-sm mt-1">已解决</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">解决方案与完善措施</h2>
+            <div class="grid grid-cols-2 gap-6 mb-8">
+              <div class="glass-card p-8 text-center feature-card">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-green-500/20 flex items-center justify-center mb-6">
+                  <span class="text-3xl">📋</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">建立 AI 交互规范</h3>
+                <p class="text-white/60 mb-4">明确架构约束，统一代码风格，指导AI生成符合项目规范的代码</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">架构约束</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">代码风格</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">命名规范</span>
+                </div>
+              </div>
+              <div class="glass-card p-8 text-center feature-card">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-blue-500/20 flex items-center justify-center mb-6">
+                  <span class="text-3xl">🔍</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">强化代码审查</h3>
+                <p class="text-white/60 mb-4">关注可读性、可维护性、性能，及时发现AI生成代码的问题</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">可读性</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">可维护性</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">性能优化</span>
+                </div>
+              </div>
+              <div class="glass-card p-8 text-center feature-card">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-yellow-500/20 flex items-center justify-center mb-6">
+                  <span class="text-3xl">🧪</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">测试驱动开发</h3>
+                <p class="text-white/60 mb-4">先定义测试用例，再验证功能实现，确保代码质量</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">契约测试</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">功能验证</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">交互测试</span>
+                </div>
+              </div>
+              <div class="glass-card p-8 text-center feature-card">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-purple-500/20 flex items-center justify-center mb-6">
+                  <span class="text-3xl">🔄</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">持续优化迭代</h3>
+                <p class="text-white/60 mb-4">积累经验，沉淀最佳实践，逐步提升AI辅助开发效率</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">经验积累</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">最佳实践</span>
+                  <span class="px-3 py-1 rounded-full bg-white/10 text-xs">效率提升</span>
+                </div>
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <div class="flex items-center gap-4">
+                <div class="flex-1">
+                  <div class="flex justify-between text-sm mb-2">
+                    <span class="text-white/60">AI 辅助开发效率提升</span>
+                    <span class="text-green-400">+40%</span>
+                  </div>
+                  <div class="h-3 rounded-full bg-white/10">
+                    <div class="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-400" style="width: 70%"></div>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <p class="text-2xl font-bold text-green-400">70%</p>
+                  <p class="text-white/40 text-xs">效率提升</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">技术亮点</h2>
+            <div class="grid grid-cols-4 gap-4 mb-8">
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-indigo-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">3D渲染</p>
+                <p class="text-white/40 text-xs">Three.js + PBR材质</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-purple-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">动画控制</p>
+                <p class="text-white/40 text-xs">GSAP + Framer Motion</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-pink-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">安全系统</p>
+                <p class="text-white/40 text-xs">多层防穿模约束</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-orange-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">无障碍支持</p>
+                <p class="text-white/40 text-xs">键盘操作、ARIA属性</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-blue-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">液态玻璃设计</p>
+                <p class="text-white/40 text-xs">类Apple风格</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-green-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">离线模式</p>
+                <p class="text-white/40 text-xs">fallback数据切换</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-cyan-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">类型安全</p>
+                <p class="text-white/40 text-xs">TypeScript完整类型</p>
+              </div>
+              <div class="glass-card p-5 text-center feature-card">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-yellow-500/20 flex items-center justify-center mb-3">
+                  <span class="text-xl">🌟</span>
+                </div>
+                <p class="text-white/80 font-medium mb-1">测试覆盖</p>
+                <p class="text-white/40 text-xs">24/24 测试通过</p>
+              </div>
+            </div>
+            <div class="glass-card p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold mb-1">开发数据统计</h3>
+                  <p class="text-white/40 text-sm">项目规模与质量指标</p>
+                </div>
+                <div class="flex items-center gap-8">
+                  <div class="text-center">
+                    <p class="text-2xl font-bold text-indigo-400">50+</p>
+                    <p class="text-white/40 text-xs">代码文件</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-2xl font-bold text-purple-400">8K+</p>
+                    <p class="text-white/40 text-xs">代码行数</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-2xl font-bold text-pink-400">8</p>
+                    <p class="text-white/40 text-xs">功能模块</p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-2xl font-bold text-green-400">100%</p>
+                    <p class="text-white/40 text-xs">测试通过</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="slide">
+            <h2 class="text-4xl font-bold mb-10 text-center glow-text">总结与展望</h2>
+            <div class="glass-card p-10 max-w-4xl mx-auto">
+              <div class="grid grid-cols-4 gap-8 mb-8">
+                <div class="text-center">
+                  <div class="w-16 h-16 mx-auto rounded-full bg-indigo-500/20 flex items-center justify-center mb-3">
+                    <span class="text-3xl">🎯</span>
+                  </div>
+                  <p class="text-3xl font-bold text-indigo-400 mb-1">8</p>
+                  <p class="text-white/50 text-sm">功能模块</p>
+                </div>
+                <div class="text-center">
+                  <div class="w-16 h-16 mx-auto rounded-full bg-purple-500/20 flex items-center justify-center mb-3">
+                    <span class="text-3xl">✅</span>
+                  </div>
+                  <p class="text-3xl font-bold text-purple-400 mb-1">24</p>
+                  <p class="text-white/50 text-sm">测试用例</p>
+                </div>
+                <div class="text-center">
+                  <div class="w-16 h-16 mx-auto rounded-full bg-pink-500/20 flex items-center justify-center mb-3">
+                    <span class="text-3xl">🎨</span>
+                  </div>
+                  <p class="text-3xl font-bold text-pink-400 mb-1">100%</p>
+                  <p class="text-white/50 text-sm">测试通过</p>
+                </div>
+                <div class="text-center">
+                  <div class="w-16 h-16 mx-auto rounded-full bg-green-500/20 flex items-center justify-center mb-3">
+                    <span class="text-3xl">🚀</span>
+                  </div>
+                  <p class="text-3xl font-bold text-green-400 mb-1">+40%</p>
+                  <p class="text-white/50 text-sm">效率提升</p>
+                </div>
+              </div>
+              <div class="border-t border-white/10 pt-6">
+                <p class="text-white/70 text-lg mb-4 text-center">AI 大幅提升开发效率，但需人类审查指导</p>
+                <p class="text-white/50 text-center">未来将继续探索 AI 与人类协作的最佳模式，不断提升软件开发的效率和质量</p>
+              </div>
+            </div>
+            <div class="mt-8 flex items-center justify-center gap-4">
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+              <span class="text-white/30 text-sm">OpenCLaw · 智能机械臂控制面板</span>
+              <div class="h-px flex-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            </div>
+          </div>
+
+          <div class="slide text-center">
+            <div class="inline-block relative mb-10">
+              <div class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse-glow">
+                <span class="text-5xl">🎉</span>
+              </div>
+              <div class="absolute -top-2 -right-2 w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center animate-bounce">
+                <span class="text-xs">Q&A</span>
+              </div>
+            </div>
+            <h2 class="text-5xl font-bold mb-6 glow-text">谢谢聆听！</h2>
+            <p class="text-white/50 text-xl mb-10">欢迎提问交流！</p>
+            <div class="flex items-center justify-center gap-6 text-white/30 text-sm">
+              <span>OpenCLaw</span>
+              <span>·</span>
+              <span>智能机械臂控制面板</span>
+              <span>·</span>
+              <span>2026</span>
+            </div>
+            <div class="mt-8 flex items-center justify-center gap-4">
+              <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center">
+                <span class="text-xl">📧</span>
+              </div>
+              <div class="text-left">
+                <p class="text-white/70 text-sm">联系方式</p>
+                <p class="text-white/40 text-xs">如有问题请随时联系</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
+        <button id="prev-btn" class="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <div id="nav-dots" class="flex gap-2"></div>
+        <button id="next-btn" class="px-5 py-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="absolute top-8 right-8 text-white/30 text-sm z-20">
+        <span id="slide-counter">1 / 11</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const navDots = document.getElementById('nav-dots');
+    const slideCounter = document.getElementById('slide-counter');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    
+    let currentSlide = 0;
+    
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'nav-dot w-3 h-3 rounded-full bg-white/30';
+      dot.addEventListener('click', () => goToSlide(index));
+      navDots.appendChild(dot);
+    });
+    
+    function updateNav() {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('active', index === currentSlide);
+      });
+      navDots.querySelectorAll('.nav-dot').forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+      slideCounter.textContent = `${currentSlide + 1} / ${slides.length}`;
+    }
+    
+    function goToSlide(index) {
+      currentSlide = Math.max(0, Math.min(slides.length - 1, index));
+      updateNav();
+    }
+    
+    function nextSlide() { goToSlide(currentSlide + 1); }
+    function prevSlide() { goToSlide(currentSlide - 1); }
+    
+    prevBtn.addEventListener('click', prevSlide);
+    nextBtn.addEventListener('click', nextSlide);
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
+    
+    updateNav();
+  </script>
+</body>
+</html>

@@ -147,18 +147,22 @@ export function DatingPage() {
   }, []);
 
   return (
-    <section className="space-y-4 pt-2">
+    <section className="space-y-5 pt-2">
       <div>
         <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
-        <h1 className="mt-2 text-3xl font-bold text-white">方案推荐</h1>
+        <h1 className="mt-2 text-3xl font-bold text-white glow-text">方案推荐</h1>
         <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           左滑跳过 · 右滑采纳并播放揭晓动画 · 上滑优先 · 下滑撤销 · 滚轮浏览方案
         </p>
       </div>
 
       {offline && (
-        <div className="rounded-xl bg-amber-500/20 px-4 py-2.5 text-sm text-amber-200">
-          离线模式 — 使用本地方案数据
+        <div className="relative overflow-hidden rounded-2xl glass p-4">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
+          <div className="flex items-center gap-2">
+            <span className="text-amber-400">⚠</span>
+            <span className="text-sm text-amber-200">离线模式 — 使用本地方案数据</span>
+          </div>
         </div>
       )}
 

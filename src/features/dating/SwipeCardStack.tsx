@@ -349,7 +349,7 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
           <button 
             onClick={startCamera} 
             disabled={!queue.length || !!exiting} 
-            className="glass-btn glass-btn-indigo flex items-center gap-1.5 px-3 py-1.5 text-xs text-indigo-300"
+            className="rounded-xl bg-gradient-to-r from-indigo-500/25 to-purple-500/25 border border-indigo-500/30 flex items-center gap-1.5 px-3 py-1.5 text-xs text-indigo-300 transition-all hover:bg-indigo-500/35"
             aria-label="开启手势控制模式"
             title="使用摄像头进行手势控制"
           >
@@ -441,15 +441,20 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
           aria-label={`撤销上一次操作，已浏览 ${history.length} 个方案`} 
           onClick={handleUndo} 
           disabled={!history.length || !!exiting} 
-          className="glass-btn glass-btn-amber p-2.5 text-amber-500"
+          className="rounded-xl bg-gradient-to-r from-amber-500/25 to-orange-500/25 border border-amber-500/30 p-2.5 text-amber-400 transition-all hover:bg-amber-500/35"
           title="撤销 (下滑)"
         >
           <RotateCcw className="h-5 w-5" />
         </button>
         {(['left', 'up', 'right'] as SwipeDirection[]).map(dir => {
           const Icon = dirIcons[dir];
-          const colorClass = `glass-btn-${dirColors[dir]}`;
-          const textClass = `text-${dirColors[dir]}-500`;
+          const gradients: Record<SwipeDirection, string> = { 
+            left: 'from-rose-500/25 to-red-500/25 border-rose-500/30 text-rose-400 hover:bg-rose-500/35', 
+            right: 'from-emerald-500/25 to-teal-500/25 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/35', 
+            up: 'from-violet-500/25 to-indigo-500/25 border-violet-500/30 text-violet-400 hover:bg-violet-500/35',
+            down: 'from-amber-500/25 to-orange-500/25 border-amber-500/30 text-amber-400 hover:bg-amber-500/35'
+          };
+          const gradientClass = gradients[dir];
           return (
             <button 
               key={dir} 
@@ -458,7 +463,7 @@ export function SwipeCardStack({ candidates, onSwipe }: SwipeCardStackProps) {
               onClick={() => { if (visibleCards[0]) handleSwipe(dir, visibleCards[0].id); }}
               disabled={!visibleCards.length || !!exiting}
               title={dirHint[dir]}
-              className={`glass-btn ${colorClass} p-3 ${textClass}`}
+              className={`rounded-xl bg-gradient-to-r ${gradientClass} border p-3 transition-all`}
             >
               <Icon className="h-6 w-6" />
             </button>

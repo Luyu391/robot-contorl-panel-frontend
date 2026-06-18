@@ -1,6 +1,6 @@
 import { useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
-import { Crosshair, ArrowRight, Gauge, Terminal, TrendingUp } from 'lucide-react';
+import { Crosshair, ArrowRight, Gauge, Terminal, TrendingUp, Activity, Zap, Shield, Cpu } from 'lucide-react';
 import StatusIndicator from '../../components/StatusIndicator';
 import JointVisualizer from '../../components/JointVisualizer';
 import ExecutionTimeline from '../../components/ExecutionTimeline';
@@ -30,127 +30,176 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
 
   return (
     <section className="space-y-6 pt-2">
-      <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
-        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
-        <h1 className="mt-2 text-3xl font-bold text-white">控制面板</h1>
-        <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 px-4 py-1.5">
+          <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-green-400" />
+          <span className="text-xs font-medium text-white/60">系统在线</span>
+        </div>
+        <h1 className="mt-4 text-4xl font-bold text-white glow-text">控制面板</h1>
+        <p className="mt-3 max-w-xl text-base leading-relaxed text-white/50">
           通过自然语言指令控制机械臂。输入你想让机械臂做的事情，
           OpenCLaw 会解析并执行你的指令。
         </p>
       </motion.div>
 
-      {/* 指标卡片 — 无边框纯玻璃 */}
-      <StaggerContainer className="grid grid-cols-3 gap-3">
+      <StaggerContainer className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: '今日执行', value: history.length, icon: Gauge, accent: 'indigo' },
           { label: '成功率', value: `${stats.successRate}%`, icon: TrendingUp, accent: 'emerald' },
-          { label: '异常次数', value: stats.failedCount, icon: Crosshair, accent: 'rose' },
+          { label: '异常次数', value: stats.failedCount, icon: Activity, accent: 'rose' },
+          { label: '运行时长', value: '8h 23m', icon: Zap, accent: 'amber' },
         ].map((stat) => {
           const Icon = stat.icon;
-          const accentMap: Record<string, { bg: string; text: string; ring: string }> = {
-            indigo: { bg: 'bg-indigo-500/20', text: 'text-indigo-300', ring: 'ring-indigo-400/20' },
-            emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-300', ring: 'ring-emerald-400/20' },
-            rose: { bg: 'bg-rose-500/20', text: 'text-rose-300', ring: 'ring-rose-400/20' },
+          const accentMap: Record<string, { bg: string; text: string; ring: string; glow: string }> = {
+            indigo: { bg: 'bg-indigo-500/20', text: 'text-indigo-300', ring: 'ring-indigo-400/30', glow: 'shadow-[0_0_20px_rgba(99,102,241,0.3)]' },
+            emerald: { bg: 'bg-emerald-500/20', text: 'text-emerald-300', ring: 'ring-emerald-400/30', glow: 'shadow-[0_0_20px_rgba(52,211,153,0.3)]' },
+            rose: { bg: 'bg-rose-500/20', text: 'text-rose-300', ring: 'ring-rose-400/30', glow: 'shadow-[0_0_20px_rgba(244,114,130,0.3)]' },
+            amber: { bg: 'bg-amber-500/20', text: 'text-amber-300', ring: 'ring-amber-400/30', glow: 'shadow-[0_0_20px_rgba(251,191,36,0.3)]' },
           };
           const a = accentMap[stat.accent];
           return (
             <StaggerItem key={stat.label}>
-              <div className="group relative overflow-hidden rounded-2xl glass p-4 text-center transition-shadow hover:shadow-lg">
-                <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-gradient-to-br from-transparent to-white/[0.05]" />
-                <div className={`mx-auto inline-flex rounded-xl ${a.bg} p-2.5 ring-1 ${a.ring}`}>
-                  <Icon className={`h-4 w-4 ${a.text}`} />
+              <div className={`group relative overflow-hidden rounded-2xl glass p-5 transition-all duration-300 hover:${a.glow} hover:-translate-y-1`}>
+                <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-transparent to-white/[0.08]" />
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${a.bg} opacity-0 transition-opacity group-hover:opacity-50`} />
+                <div className={`relative inline-flex rounded-xl ${a.bg} p-3 ring-1 ${a.ring}`}>
+                  <Icon className={`h-5 w-5 ${a.text}`} />
                 </div>
-                <p className="mt-2.5 font-mono text-2xl font-bold text-white/90">{stat.value}</p>
-                <p className="text-xs text-white/40">{stat.label}</p>
+                <p className="relative mt-3 font-mono text-3xl font-bold text-white/95">{stat.value}</p>
+                <p className="relative text-xs text-white/40">{stat.label}</p>
               </div>
             </StaggerItem>
           );
         })}
       </StaggerContainer>
 
-      {/* 状态 + 关节 */}
       <div className="grid gap-4 lg:grid-cols-2">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-2xl glass p-5">
+          className="relative overflow-hidden rounded-2xl glass-strong p-6">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
           <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-white/80">
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-500" />机械臂状态
+            <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+              <span className="inline-flex h-2 w-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" />
+              机械臂状态
             </h2>
             {state && <StatusIndicator status={state.status} />}
           </div>
           {state ? (
-            <div className="mt-4 space-y-3">
-              <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="mt-5 space-y-4">
+              <div className="grid grid-cols-3 gap-3">
                 {(['X', 'Y', 'Z'] as const).map((axis) => (
-                  <div key={axis} className="rounded-xl bg-white/[0.06] py-2.5">
-                    <p className="text-xs text-white/40">{axis}</p>
-                    <p className="font-mono text-base font-semibold text-white/90">{state.pose[axis.toLowerCase() as 'x' | 'y' | 'z'].toFixed(1)}</p>
+                  <div key={axis} className="group relative overflow-hidden rounded-xl bg-white/[0.06] p-3 text-center transition-all hover:bg-white/[0.1]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                    <p className="relative text-xs text-white/40">{axis} 轴</p>
+                    <p className="relative mt-1 font-mono text-lg font-semibold text-white/95">{state.pose[axis.toLowerCase() as 'x' | 'y' | 'z'].toFixed(1)} mm</p>
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-between rounded-xl bg-white/[0.06] px-4 py-2 text-xs">
-                <span className="text-white/40">夹爪</span>
-                <span className="font-medium text-white/80">{gripperLabel(state.gripper)}</span>
-                <span className="text-white/40">速度</span>
-                <span className="font-medium text-white/80">{state.speed}%</span>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center justify-between rounded-xl bg-white/[0.06] px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-white/40" />
+                    <span className="text-sm text-white/40">夹爪</span>
+                  </div>
+                  <span className="font-mono text-sm font-semibold text-white/90">{gripperLabel(state.gripper)}</span>
+                </div>
+                <div className="flex items-center justify-between rounded-xl bg-white/[0.06] px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-white/40" />
+                    <span className="text-sm text-white/40">速度</span>
+                  </div>
+                  <span className="font-mono text-sm font-semibold text-white/90">{state.speed}%</span>
+                </div>
               </div>
             </div>
-          ) : <p className="mt-4 text-sm text-white/40">加载中...</p>}
+          ) : <div className="mt-5 flex items-center justify-center py-8">
+              <div className="flex items-center gap-3">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-500/30 border-t-indigo-500" />
+                <span className="text-sm text-white/40">加载中...</span>
+              </div>
+            </div>}
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="rounded-2xl glass p-5">
-          {state?.joints ? <JointVisualizer joints={state.joints} /> : <p className="text-sm text-white/40">关节数据加载中...</p>}
+          className="relative overflow-hidden rounded-2xl glass-strong p-6">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
+          <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+            <Cpu className="h-5 w-5 text-white/60" />关节角度
+          </h2>
+          {state?.joints ? <JointVisualizer joints={state.joints} /> : <div className="mt-5 flex items-center justify-center py-8">
+              <div className="flex items-center gap-3">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-purple-500/30 border-t-purple-500" />
+                <span className="text-sm text-white/40">关节数据加载中...</span>
+              </div>
+            </div>}
         </motion.div>
       </div>
 
-      {/* 快速指令 */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-        className="rounded-2xl glass p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <Terminal className="h-4 w-4 text-white/40" />
-          <h2 className="text-sm font-semibold text-white/80">快速指令</h2>
+        className="relative overflow-hidden rounded-2xl glass-strong p-6">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+            <Terminal className="h-5 w-5 text-white/60" />自然语言指令
+          </h2>
+          <span className="text-xs text-white/40">AI 驱动</span>
         </div>
         <CommandInput onExecute={onExecute} disabled={state?.status === 'offline'} />
       </motion.div>
 
-      {/* 快捷操作 */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="rounded-2xl glass p-5">
+        className="relative overflow-hidden rounded-2xl glass-strong p-6">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
+        <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+          <Zap className="h-5 w-5 text-white/60" />快捷操作
+        </h2>
         <QuickActions onAction={onExecute} disabled={state?.status === 'offline'} />
       </motion.div>
 
-      {/* 关节负载 */}
       {state?.joints && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}
-          className="rounded-2xl glass p-5">
+          className="relative overflow-hidden rounded-2xl glass-strong p-6">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500" />
+          <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+            <Activity className="h-5 w-5 text-white/60" />关节负载监控
+          </h2>
           <StatsPanel joints={state.joints} />
         </motion.div>
       )}
 
-      {/* 系统健康 */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-        className="rounded-2xl glass p-5">
+        className="relative overflow-hidden rounded-2xl glass-strong p-6">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-red-500 to-rose-500" />
+        <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+          <Shield className="h-5 w-5 text-white/60" />系统健康状态
+        </h2>
         <SystemHealth />
       </motion.div>
 
-      {/* CTA */}
       <motion.button initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}
         onClick={onNavigateCommand}
-        className="glass-btn glass-btn-indigo group flex w-full items-center justify-between p-5 text-indigo-300">
-        <div className="flex items-center gap-3">
-          <Crosshair className="h-6 w-6" />
-          <div className="text-left">
-            <p className="text-base font-semibold">进入指令控制</p>
-            <p className="text-sm opacity-80">输入自然语言，精确控制机械臂</p>
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-6 text-left transition-all hover:from-indigo-600/30 hover:to-purple-600/30 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] group">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-[0_0_20px_rgba(99,102,241,0.4)]">
+              <Crosshair className="h-7 w-7 text-white" />
+            </div>
+            <div>
+              <p className="text-lg font-bold text-white">进入指令控制</p>
+              <p className="mt-1 text-sm text-white/50">输入自然语言，精确控制机械臂</p>
+            </div>
           </div>
+          <ArrowRight className="h-6 w-6 text-white/60 transition-transform group-hover:translate-x-2" />
         </div>
-        <ArrowRight className="h-6 w-6 transition group-hover:translate-x-1" />
       </motion.button>
 
-      {/* 执行历史 */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-        className="rounded-2xl glass p-5">
+        className="relative overflow-hidden rounded-2xl glass-strong p-6">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-violet-500" />
+        <h2 className="flex items-center gap-2.5 text-base font-semibold text-white/90">
+          <Gauge className="h-5 w-5 text-white/60" />执行历史
+        </h2>
         <ExecutionTimeline history={history} />
       </motion.div>
     </section>

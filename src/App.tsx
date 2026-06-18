@@ -1,6 +1,6 @@
 import { Suspense, useState, useCallback, lazy } from 'react';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { Bot, Settings, HelpCircle, Gamepad2, ClipboardList } from 'lucide-react';
+import { Bot, Settings, HelpCircle, Gamepad2, ClipboardList, Terminal, Home } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import { LiquidGlassBackground } from './components/LiquidGlass';
 import { DashboardPage } from './features/dashboard/DashboardPage';
@@ -45,7 +45,6 @@ export default function App() {
 
 function AppShell() {
   const [entered, setEntered] = useState(() => {
-    // Skip splash on revisit within session
     return sessionStorage.getItem('openclaw_entered') === '1';
   });
 
@@ -124,7 +123,6 @@ function AppRoutes() {
   );
 
   const navigateCommand = useCallback(() => navigate('/command'), [navigate]);
-
   const isOperation = location.pathname === '/operation';
 
   return (
@@ -132,7 +130,7 @@ function AppRoutes() {
       <LiquidGlassBackground />
       <div className="relative z-10">
         <AppHeader />
-        <main className={isOperation ? 'h-[calc(100vh-3.5rem)]' : 'mx-auto w-full max-w-3xl px-4 pb-24 pt-4 md:px-5'}>
+        <main className={isOperation ? 'h-[calc(100vh-3.5rem)]' : 'mx-auto w-full max-w-4xl px-4 pb-24 pt-4 md:px-6'}>
           <PageTransition mode={mode} routeKey={location.pathname}>
             <Routes location={location}>
               <Route path="/" element={<DashboardPage history={history} onExecute={makeDashboardExecute} onNavigateCommand={navigateCommand} />} />
@@ -157,10 +155,10 @@ function AppRoutes() {
 function AppHeader() {
   const location = useLocation();
   const mainItems = [
-    { to: '/', label: '仪表盘' },
-    { to: '/command', label: '指令' },
-    { to: '/playground', label: '3D', icon: <Gamepad2 className="h-3 w-3" /> },
-    { to: '/dating', label: '方案', icon: <ClipboardList className="h-3 w-3" /> },
+    { to: '/', label: '控制面板', icon: <Home className="h-3.5 w-3.5" /> },
+    { to: '/command', label: '指令', icon: <Terminal className="h-3.5 w-3.5" /> },
+    { to: '/playground', label: '3D操控', icon: <Gamepad2 className="h-3.5 w-3.5" /> },
+    { to: '/dating', label: '方案推荐', icon: <ClipboardList className="h-3.5 w-3.5" /> },
   ];
   const secondaryItems = [
     { to: '/settings', label: '设置', icon: <Settings className="h-3.5 w-3.5" /> },
@@ -168,32 +166,55 @@ function AppHeader() {
   ];
 
   return (
-    <header className="glass-strong sticky top-0 z-40 border-b border-white/[0.08]">
-      <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3 px-4 py-2.5 md:px-5">
-        <Link to="/" className="flex shrink-0 items-center gap-2 text-sm font-semibold text-white/90">
-          <Bot className="h-4 w-4 text-indigo-400" />
-          <span className="hidden sm:inline">OpenCLaw Control</span>
+    <header className="glass-strong sticky top-0 z-50">
+      <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-4 px-4 py-3 md:px-6">
+        <Link to="/" className="flex shrink-0 items-center gap-2.5">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center animate-pulse-glow">
+              <Bot className="h-5 w-5 text-white" />
+            </div>
+            <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-slate-900" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold text-white glow-text">OpenCLaw</span>
+            <span className="text-[10px] text-white/40 -mt-0.5">智能机械臂控制</span>
+          </div>
         </Link>
-        <nav aria-label="主导航" className="flex flex-wrap items-center gap-0.5 text-xs">
-          {mainItems.map((item) => {
-            const active = location.pathname === item.to;
-            return (
-              <Link key={item.to} to={item.to} aria-current={active ? 'page' : undefined}
-                className={active
-                  ? 'glass-light rounded-lg px-2.5 py-1.5 font-medium text-indigo-300'
-                  : 'rounded-lg px-2.5 py-1.5 text-white/40 transition hover:bg-white/[0.06] hover:text-white/70'}>
-                {item.icon}{item.label}
-              </Link>
-            );
-          })}
+
+        <nav aria-label="主导航" className="flex flex-1 justify-center">
+          <div className="flex items-center gap-1">
+            {mainItems.map((item) => {
+              const active = location.pathname === item.to;
+              return (
+                <Link key={item.to} to={item.to} aria-current={active ? 'page' : undefined}
+                  className={`relative flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                    active
+                      ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white shadow-lg shadow-indigo-500/20'
+                      : 'text-white/50 hover:text-white/80 hover:bg-white/[0.05]'
+                  }`}>
+                  {item.icon}
+                  <span className="hidden sm:inline">{item.label}</span>
+                  {active && (
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-400/10 to-purple-400/10 animate-pulse-glow" />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
         </nav>
-        <nav aria-label="辅助导航" className="hidden sm:flex items-center gap-0.5">
+
+        <nav aria-label="辅助导航" className="hidden sm:flex items-center gap-1">
           {secondaryItems.map((item) => {
             const active = location.pathname === item.to;
             return (
               <Link key={item.to} to={item.to} aria-current={active ? 'page' : undefined} title={item.label}
-                className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs transition ${active ? 'glass-light font-medium text-indigo-300' : 'text-white/30 hover:bg-white/[0.06] hover:text-white/60'}`}>
-                {item.icon}<span>{item.label}</span>
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm transition-all duration-300 ${
+                  active
+                    ? 'bg-white/[0.08] text-indigo-300'
+                    : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+                }`}>
+                {item.icon}
+                <span className="hidden md:inline">{item.label}</span>
               </Link>
             );
           })}
@@ -206,18 +227,18 @@ function AppHeader() {
 function SkeletonShell() {
   return (
     <section className="space-y-4 pt-2">
-      <div className="glass rounded-xl p-6">
+      <div className="glass p-6 rounded-2xl">
         <div className="h-4 w-1/3 rounded bg-white/[0.08] animate-pulse" />
         <div className="mt-4 space-y-3">
           <div className="h-3 w-full rounded bg-white/[0.05] animate-pulse" />
           <div className="h-3 w-4/5 rounded bg-white/[0.05] animate-pulse" />
         </div>
       </div>
-      <div className="glass rounded-xl p-6">
+      <div className="glass p-6 rounded-2xl">
         <div className="h-4 w-1/4 rounded bg-white/[0.08] animate-pulse" />
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="h-20 rounded-lg bg-white/[0.05] animate-pulse" />
-          <div className="h-20 rounded-lg bg-white/[0.05] animate-pulse" />
+          <div className="h-20 rounded-xl bg-white/[0.05] animate-pulse" />
+          <div className="h-20 rounded-xl bg-white/[0.05] animate-pulse" />
         </div>
       </div>
     </section>
