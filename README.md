@@ -1,6 +1,8 @@
-# OpenCLaw 机械臂控制面板
+# OpenRobot 机械臂控制面板
 
 基于 React 18 + Vite 5 的智能机械臂前端控制面板，采用**类 Apple 液态玻璃（Liquid Glass）设计风格**，集成自然语言指令、实时监控、3D 操控、动作序列执行和方案推荐功能。
+
+---
 
 ## 设计特色
 
@@ -10,6 +12,8 @@
 - **柔和光晕**：精心设计的阴影和高光层次
 - **暗色主题**：专为深色模式优化的玻璃效果
 
+---
+
 ## 快速开始
 
 ```bash
@@ -18,6 +22,8 @@ npm run dev            # Vite 起在 http://localhost:5174
 npm run test           # vitest 跑全部测试
 npm run build          # tsc + vite build
 ```
+
+---
 
 ## 技术栈
 
@@ -32,9 +38,11 @@ npm run build          # tsc + vite build
 | MSW | 2 | Mock Service Worker，模拟后端 API |
 | Vitest | 2 | 测试框架 |
 | Testing Library | 16 | React 组件测试 |
-| Three.js + R3F | 8/9 | 3D 机械臂渲染 |
+| Three.js | 0.160 | 3D 机械臂渲染 |
 | Lucide React | 0.453 | 图标库 |
 | React Router | 6.27 | 路由管理 |
+
+---
 
 ## 项目结构
 
@@ -60,7 +68,6 @@ src/
 ├── features/
 │   ├── dashboard/            # 仪表盘
 │   ├── command/              # 指令面板
-│   ├── monitor/              # 实时监控
 │   ├── playground/           # 3D 操控台（六轴机械臂 + 碰撞检测 + 手柄）
 │   ├── operation/            # 动作序列执行页面
 │   ├── dating/               # 方案推荐（卡片栈 + 揭晓动画）
@@ -100,8 +107,14 @@ src/
 tests/
 ├── safety.test.ts            # 安全校验测试
 ├── command.test.ts           # 指令历史测试
-├── swipe.contract.test.tsx   # 卡片栈契约测试（13 tests）
-└── reveal.contract.test.tsx  # 揭晓动画契约测试（4 tests）
+├── swipe.contract.test.tsx   # 卡片栈契约测试
+└── reveal.contract.test.tsx  # 揭晓动画契约测试
+
+contracts/
+├── swipe.contract.test.tsx   # 卡片栈滑动契约
+├── safety.contract.test.tsx  # 安全确认契约
+├── reveal.contract.test.tsx  # 方案揭晓契约
+├── transition.contract.test.tsx # 页面转场契约
 
 public/
 ├── actions/                  # 预设动作序列
@@ -113,6 +126,8 @@ public/
 │   └── envmap/room.png       # 环境贴图
 └── mockServiceWorker.js      # MSW Service Worker
 ```
+
+---
 
 ## 功能模块
 
@@ -136,17 +151,14 @@ public/
 ### 4. 指令面板
 自然语言输入、AI 建议卡片、指令历史、收藏管理、分类筛选。
 
-### 5. 实时监控
-六关节角度可视化、坐标位置、系统健康、状态指示灯。
-
-### 6. 3D 操控台
+### 5. 3D 操控台
 - 六轴机械臂（J1-J6）纯白建模，关节球体+装饰环+圆角夹爪
 - 键盘/按钮/手柄三重操控
 - 碰撞检测 + 安全位恢复
 - 物品抓取放置小游戏
 - 送达时绿色粒子爆发
 
-### 7. 动作序列执行
+### 6. 动作序列执行
 - 预设动作加载（抓取放置、示例动作）
 - GSAP 动画序列控制
 - 播放/暂停/停止/进度拖拽
@@ -157,15 +169,18 @@ public/
 - 轨迹可视化
 - 安全系统（防穿模约束、关节间依赖规则、安全快照恢复）
 
-### 8. 方案推荐
+### 7. 方案推荐
 - 卡片栈拖拽浏览（offset+velocity 双判飞出）
 - 采纳/跳过/优先执行/撤销
 - Parallax tilt 3D 倾斜效果
 - 方案确认揭晓动画（跳过按钮全程可点）
 - 离线模式 fallback
+- 手势识别控制（MediaPipe Hands）
 
-### 9. 页面转场
+### 8. 页面转场
 四条语义转场：enter（首次进入）、push（深一层）、pop（回退）、fade（同级切换）。
+
+---
 
 ## API 接口
 
@@ -175,9 +190,13 @@ public/
 |------|------|------|
 | GET | /api/robot/status | 机械臂状态 |
 | POST | /api/robot/command | 发送指令 |
+| POST | /api/robot/parse | 自然语言解析 |
+| GET | /api/robot/suggestions | AI 指令建议 |
 | GET | /api/dating/profiles | 方案列表 |
 | POST | /api/dating/swipe | 方案选择 |
 | GET | /api/dating/matches/next-reveal | 方案确认数据 |
+
+---
 
 ## 测试
 
@@ -187,6 +206,8 @@ npm run test:contract     # 契约测试（17 tests）
 npm run test:watch        # 监听模式
 ```
 
+---
+
 ## 无障碍
 
 - 所有交互元素有 aria-label
@@ -195,50 +216,54 @@ npm run test:watch        # 监听模式
 - 骨架屏加载状态
 - 焦点陷阱（安全确认弹窗）
 
+---
+
 ## 架构图
 
 ```
-┌─────────────────────────────────────────────────┐
-│                   App.tsx                        │
-│  ┌─────────┐  ┌──────────┐  ┌────────────────┐ │
-│  │ Router   │  │ Robot    │  │ Toast          │ │
-│  │ +Lazy    │  │ Provider │  │ Provider       │ │
-│  └────┬─────┘  └────┬─────┘  └────────────────┘ │
-│       │              │                            │
-│  ┌────▼──────────────────────────────────────┐   │
-│  │           PageTransition                   │   │
-│  │  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────────┐ │   │
-│  │  │Dash  │ │Cmd   │ │Monitor│ │Playground│ │   │
-│  │  │board │ │Panel │ │       │ │  3D Arm  │ │   │
-│  │  └──────┘ └──────┘ └──────┘ └──────────┘ │   │
-│  │  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────────┐ │   │
-│  │  │Dating│ │Sett- │ │Help  │ │Operation │ │   │
-│  │  │Cards │ │ings  │ │      │ │  Sequence │ │   │
-│  │  └──────┘ └──────┘ └──────┘ └──────────┘ │   │
-│  └───────────────────────────────────────────┘   │
-│                     │                             │
-│              ┌──────▼──────┐                      │
-│              │  MSW Layer  │                      │
-│              │ /api/robot  │                      │
-│              │ /api/dating │                      │
-│              └─────────────┘                      │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                        App.tsx                               │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────┐  │
+│  │ Router      │  │ Robot        │  │ Toast              │  │
+│  │ +Lazy       │  │ Provider     │  │ Provider           │  │
+│  └──────┬──────┘  └──────┬───────┘  └────────────────────┘  │
+│         │                │                                    │
+│  ┌──────▼─────────────────────────────────────────────────┐ │
+│  │                    PageTransition                       │ │
+│  │  ┌────────┐ ┌────────┐ ┌──────────┐ ┌────────────────┐ │ │
+│  │  │Dashboard│ │Command │ │Playground│ │Dating Cards   │ │ │
+│  │  │        │ │Panel   │ │  3D Arm  │ │                │ │ │
+│  │  └────────┘ └────────┘ └──────────┘ └────────────────┘ │ │
+│  │  ┌────────┐ ┌────────┐ ┌──────────┐ ┌────────────────┐ │ │
+│  │  │Settings│ │Help    │ │Operation │ │Reveal          │ │ │
+│  │  │        │ │        │ │ Sequence │ │                │ │ │
+│  │  └────────┘ └────────┘ └──────────┘ └────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────┘ │
+│                           │                                   │
+│                    ┌──────▼──────┐                            │
+│                    │  MSW Layer  │                            │
+│                    │ /api/robot  │                            │
+│                    │ /api/dating │                            │
+│                    └─────────────┘                            │
+└─────────────────────────────────────────────────────────────┘
 
 启动流程：
-┌──────────────────┐
-│ SplashScreen.tsx │
-│  - 动态背景动画  │
-│  - Logo 旋转     │
-│  - 会话记忆      │
-└────────┬─────────┘
-         │ onEnter
-         ▼
-┌──────────────────┐
-│   AppRoutes.tsx  │
-│   - 路由懒加载   │
-│   - 页面转场     │
-└──────────────────┘
+┌──────────────────────┐
+│  SplashScreen.tsx    │
+│  - 动态背景动画      │
+│  - Logo 旋转         │
+│  - 会话记忆          │
+└──────────┬───────────┘
+           │ onEnter
+           ▼
+┌──────────────────────┐
+│    AppRoutes.tsx     │
+│    - 路由懒加载      │
+│    - 页面转场        │
+└──────────────────────┘
 ```
+
+---
 
 ## 项目完成状态
 
@@ -261,6 +286,11 @@ npm run test:watch        # 监听模式
 - [x] MSW 模拟后端 API（带延迟模拟）
 - [x] 离线模式支持（fallback 数据、用户提示）
 - [x] 单元测试与契约测试（24 个测试全部通过）
+- [x] 无障碍审计报告（A11Y.md）
+- [x] 架构决策记录（decisions/ADR-001~003）
+- [x] AI 对话记录（ai-conversations/）
+- [x] 学习笔记（LEARNINGS.md）
+- [x] 自我评估（SELF-EVAL.md）
 
 ### 技术亮点 🌟
 - **3D 渲染**：基于 Three.js 的六轴机械臂实时渲染，支持 PBR 材质
@@ -271,6 +301,8 @@ npm run test:watch        # 监听模式
 - **无障碍支持**：完整的键盘操作、aria-label 属性、prefers-reduced-motion 适配
 - **离线模式**：断网时自动切换到 fallback 数据，提供友好提示
 - **代码质量**：TypeScript 类型安全、组件化设计、测试覆盖（24/24 测试通过）
+
+---
 
 ## 开发说明
 
@@ -302,6 +334,24 @@ npm run build
 1. 将 GLB 模型文件放置在 `public/models/` 目录
 2. 更新 `src/features/playground/robotArm3D.ts` 中的模型加载逻辑
 3. 调整关节名称映射和角度限制
+
+---
+
+## 提交物清单
+
+按照 Module D 要求，本项目包含以下提交物：
+
+| 文件/目录 | 说明 |
+|-----------|------|
+| `ai-conversations/` | AI 对话记录（4个关键讨论） |
+| `decisions/` | ADR 架构决策记录（3条） |
+| `LEARNINGS.md` | 踩坑笔记与迭代日志 |
+| `A11Y.md` | 无障碍审计报告 |
+| `SELF-EVAL.md` | 自我评估（42/50） |
+| `contracts/` | 契约测试（4个组件） |
+| `tests/` | 单元测试（24个用例） |
+
+---
 
 ## 许可证
 

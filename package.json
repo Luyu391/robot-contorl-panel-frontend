@@ -9,12 +9,11 @@
     "preview": "vite preview --port 5174",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:contract": "vitest run contracts/"
+    "test:contract": "vitest run contracts/",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@react-three/drei": "^9.122.0",
-    "@react-three/fiber": "^8.18.0",
-    "@types/three": "^0.184.1",
     "framer-motion": "^11.11.0",
     "gsap": "^3.15.0",
     "lucide-react": "^0.453.0",
@@ -24,11 +23,13 @@
     "three": "^0.184.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.48.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
     "@testing-library/user-event": "^14.5.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.184.1",
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "jsdom": "^25.0.1",

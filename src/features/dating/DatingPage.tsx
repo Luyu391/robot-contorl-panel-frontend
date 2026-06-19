@@ -149,7 +149,7 @@ export function DatingPage() {
   return (
     <section className="space-y-5 pt-2">
       <div>
-        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENROBOT</p>
         <h1 className="mt-2 text-3xl font-bold text-white glow-text">方案推荐</h1>
         <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           左滑跳过 · 右滑采纳并播放揭晓动画 · 上滑优先 · 下滑撤销 · 滚轮浏览方案

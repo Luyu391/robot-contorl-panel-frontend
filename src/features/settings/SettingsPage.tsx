@@ -12,7 +12,7 @@ export function SettingsPage() {
   return (
     <section className="space-y-5 pt-2">
       <div>
-        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENROBOT</p>
         <h1 className="mt-2 text-3xl font-bold text-white glow-text">系统设置</h1>
         <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           配置机械臂控制参数、安全偏好与通知选项。修改会自动保存。
@@ -129,7 +129,7 @@ export function SettingsPage() {
           <div className="space-y-2">
             {[
               { label: '版本', value: 'v1.0.0' },
-              { label: '引擎', value: 'OpenCLaw NL' },
+              { label: '引擎', value: 'OpenRobot NL' },
               { label: '机械臂型号', value: 'XRobotics i7' },
               { label: '前端框架', value: 'React 18 + Vite 5' },
             ].map((item) => (

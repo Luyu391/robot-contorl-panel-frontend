@@ -122,7 +122,7 @@ export function ExecutionReveal({
           transition={{ duration: reduced ? 0 : 0.4 }}
           className="text-xs tracking-[0.4em] text-white/40"
         >
-          OpenCLaw · 指令执行
+          OpenRobot · 指令执行
         </motion.p>
 
         <motion.div

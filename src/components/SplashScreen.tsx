@@ -121,7 +121,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
               animate={{ letterSpacing: '0.05em' }}
               transition={{ duration: 1.5, delay: 0.6 }}
             >
-              OpenCLaw
+              OpenRobot
             </motion.h1>
             
             <motion.p
@@ -195,7 +195,7 @@ export default function SplashScreen({ onEnter }: SplashScreenProps) {
             transition={{ delay: 1.6 }}
             className="absolute bottom-10 text-xs text-white/40 tracking-wider"
           >
-            OpenCLaw Robotics · v2.0
+            OpenRobot Robotics · v2.0
           </motion.p>
         </div>
 

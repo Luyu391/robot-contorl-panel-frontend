@@ -38,7 +38,7 @@ export const DashboardPage = memo(function DashboardPage({ history, onExecute, o
         <h1 className="mt-4 text-4xl font-bold text-white glow-text">控制面板</h1>
         <p className="mt-3 max-w-xl text-base leading-relaxed text-white/50">
           通过自然语言指令控制机械臂。输入你想让机械臂做的事情，
-          OpenCLaw 会解析并执行你的指令。
+          OpenRobot 会解析并执行你的指令。
         </p>
       </motion.div>
 

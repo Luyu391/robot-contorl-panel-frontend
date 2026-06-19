@@ -92,7 +92,7 @@ export function PlaygroundPage() {
   return (
     <section className="space-y-5 pt-2">
       <div>
-        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENROBOT</p>
         <h1 className="mt-2 text-3xl font-bold text-white glow-text">3D 操控台</h1>
         <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
           GLB高精模型 · GSAP动画引擎 · 沉浸式3D交互体验

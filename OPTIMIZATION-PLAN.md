@@ -1,4 +1,4 @@
-# OpenCLaw Control Panel · 迭代优化计划 v2
+# OpenRobot Control Panel · 迭代优化计划 v2
 
 > 基于项目全量遍历与 Module D 参考项目对比，制定本优化计划。
 > 每一项优化均标注优先级、影响范围和预期效果。

@@ -41,7 +41,7 @@ function RevealContent({ payload, stage, reduced }: { payload: MatchRevealPayloa
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduced ? 0 : 0.2, ease: EASE }}
         className="text-xs tracking-[0.4em] text-white/40"
-      >OpenCLaw · 方案确认</motion.p>
+      >OpenRobot · 方案确认</motion.p>
 
       <motion.div
         initial={{ scale: 0, opacity: 0 }}

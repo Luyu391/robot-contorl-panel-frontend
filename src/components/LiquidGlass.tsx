@@ -166,7 +166,7 @@ export function LiquidGlassCard({
   const variantStyles = {
     default: 'shadow-[0_8px_32px_rgba(0,0,0,0.2)]',
     elevated: 'shadow-[0_20px_60px_rgba(0,0,0,0.3),0_0_80px_rgba(255,255,255,0.05)]',
-    glow: `shadow-[0_8px_32px_rgba(0,0,0,0.2),0_0_60px_${glowColor}]`,
+    glow: 'shadow-[0_8px_32px_rgba(0,0,0,0.2)]',
   };
 
   const hoverStyles = hoverable ? `

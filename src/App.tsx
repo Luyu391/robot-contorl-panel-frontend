@@ -45,11 +45,11 @@ export default function App() {
 
 function AppShell() {
   const [entered, setEntered] = useState(() => {
-    return sessionStorage.getItem('openclaw_entered') === '1';
+    return sessionStorage.getItem('openrobot_entered') === '1';
   });
 
   const handleEnter = useCallback(() => {
-    sessionStorage.setItem('openclaw_entered', '1');
+    sessionStorage.setItem('openrobot_entered', '1');
     setEntered(true);
   }, []);
 
@@ -176,7 +176,7 @@ function AppHeader() {
             <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-500 border-2 border-slate-900" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-white glow-text">OpenCLaw</span>
+            <span className="text-sm font-bold text-white glow-text">OpenRobot</span>
             <span className="text-[10px] text-white/40 -mt-0.5">智能机械臂控制</span>
           </div>
         </Link>

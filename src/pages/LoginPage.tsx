@@ -74,7 +74,7 @@ export function LoginPage() {
           </motion.div>
 
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            OpenCLaw
+            OpenRobot
           </h1>
           <p className="text-white/50 text-sm">
             智能机械臂控制系统

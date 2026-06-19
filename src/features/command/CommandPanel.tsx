@@ -103,7 +103,7 @@ export function CommandPanel({ history, onAddCommand, onUpdateStatus, onExecute 
         <h1 className="mt-4 text-4xl font-bold text-white glow-text">指令控制</h1>
         <p className="mt-3 max-w-xl text-base leading-relaxed text-white/50">
           输入自然语言指令来控制机械臂。你可以描述目标位置、操作类型和参数，
-          OpenCLaw 会自动解析并安全执行。
+          OpenRobot 会自动解析并安全执行。
         </p>
       </motion.div>
 

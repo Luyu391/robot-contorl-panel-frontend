@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { HelpCircle, Keyboard, Lightbulb, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
 
 const faqItems = [
-  { q: '如何输入自然语言指令？', a: '在指令输入框中直接描述你想让机械臂执行的操作，例如"移动到实验台A上方，张开夹爪"。OpenCLaw 会利用 NL 引擎解析你的意图并转换为机械臂指令。' },
+  { q: '如何输入自然语言指令？', a: '在指令输入框中直接描述你想让机械臂执行的操作，例如"移动到实验台A上方，张开夹爪"。OpenRobot 会利用 NL 引擎解析你的意图并转换为机械臂指令。' },
   { q: '安全确认弹窗什么时候出现？', a: '当系统检测到指令中包含潜在风险关键词（如"碰撞"、"全速"），或解析后判断需要人工确认时，会自动弹出安全确认窗口。' },
   { q: 'AI 建议卡片如何使用？', a: '你无需输入完整指令。点击任意 AI 建议卡片，系统会自动采纳该指令并执行。建议卡片会根据你的最近操作历史和当前上下文动态生成。' },
   { q: '指令执行失败怎么办？', a: '执行失败时，系统会给出具体的错误原因。常见原因包括关节角度超出安全范围、目标坐标不可达等。请根据提示调整指令后重试。' },
@@ -23,10 +23,10 @@ export function HelpPage() {
   return (
     <section className="space-y-5 pt-2">
       <div>
-        <p className="text-xs tracking-[0.4em] text-white/40">OPENCLAW</p>
+        <p className="text-xs tracking-[0.4em] text-white/40">OPENROBOT</p>
         <h1 className="mt-2 text-3xl font-bold text-white glow-text">帮助中心</h1>
         <p className="mt-2 max-w-lg text-sm leading-6 text-white/50">
-          了解如何使用 OpenCLaw 控制面板，查看键盘快捷键和常见问题。
+          了解如何使用 OpenRobot 控制面板，查看键盘快捷键和常见问题。
         </p>
       </div>
 
