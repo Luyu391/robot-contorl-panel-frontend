@@ -93,11 +93,38 @@ export const handlers = [
     const context = url.searchParams.get('context') ?? '';
 
     return HttpResponse.json([
+      // 基础指令
       { id: 's1', text: '回零位待命', confidence: 100, category: '基础', description: '机械臂回到预设零点位置' },
-      { id: 's2', text: context.includes('实验') ? '移动到实验台B' : '移动到实验台A上方', confidence: context.includes('实验') ? 90 : 95, category: '移动', description: '移动到指定实验台的安全高度' },
-      { id: 's3', text: '张开夹爪', confidence: 100, category: '夹爪', description: '完全打开夹爪，准备抓取操作' },
-      { id: 's4', text: '抓取当前位置物品', confidence: 92, category: '夹爪', description: '闭合夹爪抓取目标物品' },
-      { id: 's5', text: '先上升5cm再旋转90度', confidence: 88, category: '复合', description: '复合指令：安全上升后旋转' },
+      { id: 's2', text: '紧急停止', confidence: 100, category: '基础', description: '立即停止所有运动' },
+      { id: 's3', text: '暂停动作', confidence: 95, category: '基础', description: '暂停当前执行的动作' },
+
+      // 移动指令
+      { id: 's4', text: '移动到实验台A上方', confidence: 95, category: '移动', description: '移动到实验台A的安全高度位置' },
+      { id: 's5', text: '移动到实验台B上方', confidence: 90, category: '移动', description: '移动到实验台B的安全高度位置' },
+      { id: 's6', text: '移动到样本架', confidence: 88, category: '移动', description: '移动到样本架上方' },
+      { id: 's7', text: '移动到放置区域', confidence: 85, category: '移动', description: '移动到物品放置区域' },
+      { id: 's8', text: '上升10厘米', confidence: 90, category: '移动', description: '垂直上升安全高度' },
+      { id: 's9', text: '下降5厘米', confidence: 88, category: '移动', description: '垂直下降指定高度' },
+
+      // 夹爪指令
+      { id: 's10', text: '张开夹爪', confidence: 100, category: '夹爪', description: '完全打开夹爪，准备抓取操作' },
+      { id: 's11', text: '闭合夹爪', confidence: 100, category: '夹爪', description: '完全闭合夹爪，执行抓取' },
+      { id: 's12', text: '半开夹爪', confidence: 80, category: '夹爪', description: '夹爪半开状态，轻柔抓取' },
+
+      // 旋转指令
+      { id: 's13', text: '底座左旋90度', confidence: 92, category: '旋转', description: '底座向左旋转90度' },
+      { id: 's14', text: '底座右旋90度', confidence: 92, category: '旋转', description: '底座向右旋转90度' },
+      { id: 's15', text: '底座旋转180度', confidence: 88, category: '旋转', description: '底座旋转180度调转方向' },
+
+      // 复合指令
+      { id: 's16', text: '先上升后旋转', confidence: 85, category: '复合', description: '上升安全高度后旋转底座' },
+      { id: 's17', text: '抓取并移动', confidence: 82, category: '复合', description: '抓取物品后移动到目标位置' },
+      { id: 's18', text: '放置物品', confidence: 90, category: '复合', description: '移动到放置区后张开夹爪' },
+
+      // LLM推荐（模拟）
+      { id: 'llm1', text: '安全高度避障路径', confidence: 78, category: 'LLM推荐', description: 'AI优化路径，避开障碍物' },
+      { id: 'llm2', text: '节能模式移动', confidence: 75, category: 'LLM推荐', description: '最小能耗的移动路径规划' },
+      { id: 'llm3', text: '快速抓取序列', confidence: 72, category: 'LLM推荐', description: '最短时间的抓取动作序列' },
     ]);
   }),
 

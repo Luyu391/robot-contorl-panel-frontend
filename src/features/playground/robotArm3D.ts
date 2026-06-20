@@ -519,6 +519,30 @@ export class RobotArm {
     this.stopTrajectory();
   }
 
+  /** 停止所有正在进行的动画 */
+  stopAllAnimations(): void {
+    // 停止 GSAP 全局时间线
+    gsap.globalTimeline.pause();
+    gsap.globalTimeline.clear();
+
+    // 停止关节动画
+    this.allConfigs.forEach((config) => {
+      gsap.killTweensOf(config);
+    });
+
+    // 停止关节时间线
+    if (this.animTimeline) {
+      this.animTimeline.kill();
+      this.animTimeline = null;
+    }
+
+    // 停止夹爪时间线
+    if (this.gripperTimeline) {
+      this.gripperTimeline.kill();
+      this.gripperTimeline = null;
+    }
+  }
+
   /** 重置所有关节到0度 (匀速) */
   resetAll(onComplete?: () => void): void {
     this.stopAllAnimations();

@@ -6,13 +6,17 @@ import gsap from 'gsap';
 import {
   ArrowLeft, Play, Pause, Square, RotateCcw, Eye, EyeOff,
   Camera, Grip, Maximize2, Minimize2, Shield, AlertTriangle,
-  Upload, RefreshCw, Settings2, Layers
+  Upload, RefreshCw, Settings2, Layers, Terminal, Sparkles,
+  Send, Loader2, CheckCircle2, XCircle, Filter, ChevronRight, Zap, Bot
 } from 'lucide-react';
 import {
   RobotArm, createScene, setupLighting, setupGround,
   JOINT_NAMES, type JointConfig,
 } from '../playground/robotArm3D';
 import { SystemLog, type LogEntry } from '../playground/SystemLog';
+import { quickSafetyCheck } from '../../lib/safety-validator';
+import { parseCommand, executeCommand as apiExecuteCommand } from '../../lib/robot-api';
+import type { SafetyCheck, CommandSuggestion } from '../../types';
 
 type ViewMode = 'default' | 'front' | 'top' | 'side';
 
@@ -83,6 +87,38 @@ export function OperationPage() {
   const [safetyEnabled, setSafetyEnabled] = useState(true);
   const [safetyStatus, setSafetyStatus] = useState<{ isSafe: boolean; warnings: string[] }>({ isSafe: true, warnings: [] });
 
+  // 自然语言指令输入状态
+  const [commandText, setCommandText] = useState('');
+  const [commandSafety, setCommandSafety] = useState<SafetyCheck | null>(null);
+  const [commandExecuting, setCommandExecuting] = useState(false);
+  const [commandHistory, setCommandHistory] = useState<{ text: string; success: boolean; time: Date }[]>([]);
+
+  // 方案推荐状态
+  const [suggestions, setSuggestions] = useState<CommandSuggestion[]>([]);
+  const [suggestionFilter, setSuggestionFilter] = useState<string>('all');
+  const [selectedSuggestion, setSelectedSuggestion] = useState<CommandSuggestion | null>(null);
+
+  // 机械臂末端位置状态
+  const [endEffectorPos, setEndEffectorPos] = useState<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: 0 });
+
+  // 加载方案建议
+  useEffect(() => {
+    fetch('/api/robot/suggestions?context=')
+      .then((r) => r.json())
+      .then((data: CommandSuggestion[]) => setSuggestions(data))
+      .catch(() => {});
+  }, []);
+
+  // 指令文本变化时的安全检查
+  useEffect(() => {
+    if (commandText.trim().length > 0) {
+      const result = quickSafetyCheck(commandText);
+      setCommandSafety(result);
+    } else {
+      setCommandSafety(null);
+    }
+  }, [commandText]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -139,6 +175,9 @@ export function OperationPage() {
       controls.update();
       if (arm.model) {
         setJointDegrees(arm.getJointDegrees());
+        // 更新末端位置
+        const pos = arm.getEndEffectorPosition();
+        setEndEffectorPos({ x: pos.x, y: pos.y, z: pos.z });
       }
       renderer.render(scene, camera);
     };
@@ -276,6 +315,18 @@ export function OperationPage() {
     addLog('debug', '模型外观已重置');
   }, [applyModelAppearance]);
 
+  // 暂停播放
+  const pausePlayback = useCallback(() => {
+    setIsPaused(true);
+    gsap.globalTimeline.pause();
+  }, []);
+
+  // 继续播放
+  const resumePlayback = useCallback(() => {
+    setIsPaused(false);
+    gsap.globalTimeline.resume();
+  }, []);
+
   const resetToIdle = useCallback(() => {
     armRef.current?.resetAll(() => {
       setJointConfigs(armRef.current?.getJointConfigs() ?? []);
@@ -286,6 +337,170 @@ export function OperationPage() {
     });
     addLog('info', '机械臂归零 (idle pose)');
   }, []);
+
+  // 执行自然语言指令
+  const handleExecuteCommand = useCallback(async () => {
+    const trimmed = commandText.trim();
+    if (!trimmed || commandExecuting) return;
+    if (commandSafety && commandSafety.errors.length > 0) return;
+
+    setCommandExecuting(true);
+    addLog('info', `执行指令: "${trimmed}"`);
+
+    try {
+      // 解析指令（使用 Ollama 或 fallback）
+      const { parseCommandWithLLM } = await import('../../lib/ollama-client');
+      const parsed = await parseCommandWithLLM(trimmed);
+
+      addLog('debug', `解析: ${parsed.action} | 目标: ${parsed.target} | 角度: ${parsed.params.angle || '无'}`);
+
+      // 获取速度配置
+      const speedMap = { slow: 1000, medium: 600, fast: 300 };
+      const duration = speedMap[parsed.params.speed || 'medium'];
+
+      // 根据解析结果控制机械臂
+      switch (parsed.action) {
+        case 'grab':
+          // 抓取 - 闭合夹爪
+          armRef.current?.animateGripper(0, duration);
+          setGripperOpenness(0);
+          setGripperState(true);
+          addLog('success', '夹爪已闭合，执行抓取');
+          break;
+
+        case 'release':
+          // 释放 - 张开夹爪
+          armRef.current?.animateGripper(1, duration);
+          setGripperOpenness(1);
+          setGripperState(false);
+          addLog('success', '夹爪已张开，释放物品');
+          break;
+
+        case 'rotate':
+          // 旋转 - 底座旋转指定角度
+          {
+            const currentBase = armRef.current?.getJointConfigs().find(c => c.name === 'base1');
+            const angle = parsed.params.angle || 90;
+            const targetAngle = (currentBase?.currentAngle || 0) + angle;
+            armRef.current?.animateJoint('base1', targetAngle, duration);
+            addLog('success', `底座旋转 ${angle}°`);
+          }
+          break;
+
+        case 'raise':
+          // 上升 - 肩关节角度增加
+          {
+            const shoulder = armRef.current?.getJointConfigs().find(c => c.name === 'shoulder');
+            const targetAngle = Math.min((shoulder?.currentAngle || 0) + 20, shoulder?.maxAngle || 130);
+            armRef.current?.animateJoint('shoulder', targetAngle, duration);
+            addLog('success', '机械臂上升');
+          }
+          break;
+
+        case 'lower':
+          // 下降 - 肩关节角度减少
+          {
+            const shoulder = armRef.current?.getJointConfigs().find(c => c.name === 'shoulder');
+            const targetAngle = Math.max((shoulder?.currentAngle || 0) - 20, shoulder?.minAngle || -130);
+            armRef.current?.animateJoint('shoulder', targetAngle, duration);
+            addLog('success', '机械臂下降');
+          }
+          break;
+
+        case 'tilt':
+          // 倾斜 - 腕关节调整
+          {
+            const wrist = armRef.current?.getJointConfigs().find(c => c.name === 'wrist1');
+            const angle = parsed.params.angle || 30;
+            armRef.current?.animateJoint('wrist1', angle, duration);
+            addLog('success', `腕部倾斜 ${angle}°`);
+          }
+          break;
+
+        case 'stop':
+          // 紧急停止
+          armRef.current?.stopAllAnimations();
+          addLog('warning', '紧急停止！所有运动已中止');
+          break;
+
+        case 'reset':
+        case 'move':
+          if (parsed.target === 'home') {
+            // 复位到零点
+            armRef.current?.resetAll(() => {
+              setJointConfigs(armRef.current?.getJointConfigs() ?? []);
+              setGripperConfigs(armRef.current?.getGripperConfigs() ?? []);
+              setGripperOpenness(0);
+            });
+            addLog('success', '机械臂已复位到零点位置');
+          } else if (parsed.target === 'safe_height') {
+            // 移动到安全高度
+            armRef.current?.animateJoint('shoulder', 45, duration);
+            armRef.current?.animateJoint('elbow1', -30, duration);
+            addLog('success', '移动到安全高度');
+          } else {
+            // 通用移动（复位）
+            armRef.current?.resetAll(() => {
+              setJointConfigs(armRef.current?.getJointConfigs() ?? []);
+            });
+            addLog('success', `移动到 ${parsed.target}`);
+          }
+          break;
+
+        case 'pause':
+          // 暂停当前动作
+          pausePlayback();
+          addLog('info', '动作已暂停');
+          break;
+
+        case 'resume':
+          // 继续执行
+          if (isPaused) {
+            resumePlayback();
+            addLog('info', '继续执行动作');
+          }
+          break;
+
+        default:
+          addLog('warning', `未知动作: ${parsed.action}`);
+      }
+
+      // 更新关节配置状态
+      setTimeout(() => {
+        setJointConfigs(armRef.current?.getJointConfigs() ?? []);
+        setGripperConfigs(armRef.current?.getGripperConfigs() ?? []);
+      }, duration + 100);
+
+      // 记录执行历史
+      setCommandHistory((prev) => [
+        ...prev.slice(-19),
+        { text: trimmed, success: true, time: new Date() },
+      ]);
+
+    } catch (err) {
+      addLog('error', `指令执行失败: ${err}`);
+      setCommandHistory((prev) => [
+        ...prev.slice(-19),
+        { text: trimmed, success: false, time: new Date() },
+      ]);
+    } finally {
+      setCommandExecuting(false);
+    }
+  }, [commandText, commandExecuting, commandSafety, addLog, isPaused]);
+
+  // 选择方案建议
+  const handleSelectSuggestion = useCallback((s: CommandSuggestion) => {
+    setSelectedSuggestion(s);
+    setCommandText(s.text);
+    addLog('info', `选择方案: ${s.name || s.text}`);
+  }, [addLog]);
+
+  // 筛选方案
+  const filteredSuggestions = suggestions.filter(
+    (s) => suggestionFilter === 'all' || s.category === suggestionFilter
+  );
+
+  const suggestionCategories = ['all', '基础', '移动', '夹爪', '复合', 'LLM推荐'];
 
   const toggleSafety = useCallback(() => {
     const arm = armRef.current;
@@ -712,6 +927,159 @@ export function OperationPage() {
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto p-4">
+              {/* 自然语言指令输入 */}
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500" />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                    <Terminal className="h-4 w-4 text-blue-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-white/80">自然语言指令</h3>
+                    <p className="text-[10px] text-white/40">输入指令控制机械臂</p>
+                  </div>
+                </div>
+                <div className="relative">
+                  <textarea
+                    value={commandText}
+                    onChange={(e) => setCommandText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleExecuteCommand();
+                      }
+                    }}
+                    disabled={commandExecuting}
+                    rows={2}
+                    placeholder="例如：移动到实验台A上方，张开夹爪"
+                    className="w-full resize-none rounded-xl border border-white/20 bg-white/[0.04] px-3 py-2 text-xs leading-5 text-white/90 placeholder:text-white/30 focus:border-blue-500 focus:outline-none disabled:opacity-50"
+                  />
+                  <button
+                    onClick={handleExecuteCommand}
+                    disabled={commandExecuting || !commandText.trim() || (commandSafety?.errors.length ?? 0) > 0}
+                    className="absolute bottom-2 right-2 flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 disabled:opacity-40"
+                  >
+                    {commandExecuting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </button>
+                </div>
+                {commandSafety && (commandSafety.errors.length > 0 || commandSafety.warnings.length > 0) && (
+                  <div className="mt-2 rounded-xl bg-amber-500/10 px-3 py-2 border border-amber-500/20">
+                    {commandSafety.errors.map((err, i) => (
+                      <p key={i} className="flex items-center gap-1 text-[10px] text-rose-400">
+                        <XCircle className="h-3 w-3" />
+                        {err}
+                      </p>
+                    ))}
+                    {commandSafety.warnings.map((warn, i) => (
+                      <p key={i} className="flex items-center gap-1 text-[10px] text-amber-400">
+                        <AlertTriangle className="h-3 w-3" />
+                        {warn}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 方案推荐（滑动筛选） */}
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500" />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+                    <Sparkles className="h-4 w-4 text-purple-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-white/80">AI 方案推荐</h3>
+                    <p className="text-[10px] text-white/40">滑动筛选执行方案</p>
+                  </div>
+                </div>
+                {/* 分类筛选 */}
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {suggestionCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSuggestionFilter(cat)}
+                      className={`rounded-lg px-2 py-1 text-[10px] font-medium transition-all ${
+                        suggestionFilter === cat
+                          ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                          : 'bg-white/[0.04] text-white/50 hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      {cat === 'all' ? '全部' : cat}
+                    </button>
+                  ))}
+                </div>
+                {/* 方案列表 */}
+                <div className="space-y-1.5 max-h-[120px] overflow-y-auto">
+                  {filteredSuggestions.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => handleSelectSuggestion(s)}
+                      className={`w-full rounded-xl px-3 py-2 text-left transition-all ${
+                        selectedSuggestion?.id === s.id
+                          ? 'bg-purple-500/20 border border-purple-500/30'
+                          : 'bg-white/[0.04] hover:bg-white/[0.08]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-white/80">{s.text}</span>
+                        <span className="text-[10px] text-white/40">{s.confidence}%</span>
+                      </div>
+                      <p className="text-[10px] text-white/50 mt-0.5">{s.description}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 机械臂状态面板 */}
+              <div className="relative overflow-hidden rounded-2xl glass p-4">
+                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500" />
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20">
+                    <Bot className="h-4 w-4 text-emerald-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-white/80">机械臂状态</h3>
+                    <p className="text-[10px] text-white/40">实时数据反馈</p>
+                  </div>
+                </div>
+                {/* 末端位置 */}
+                <div className="mb-2">
+                  <p className="text-[10px] text-white/40 mb-1">末端位置 (mm)</p>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+                      <p className="text-[9px] text-white/40">X</p>
+                      <p className="font-mono text-[10px] text-white/80">{endEffectorPos.x.toFixed(1)}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+                      <p className="text-[9px] text-white/40">Y</p>
+                      <p className="font-mono text-[10px] text-white/80">{endEffectorPos.y.toFixed(1)}</p>
+                    </div>
+                    <div className="rounded-lg bg-white/[0.04] px-2 py-1.5 text-center">
+                      <p className="text-[9px] text-white/40">Z</p>
+                      <p className="font-mono text-[10px] text-white/80">{endEffectorPos.z.toFixed(1)}</p>
+                    </div>
+                  </div>
+                </div>
+                {/* 指令历史 */}
+                {commandHistory.length > 0 && (
+                  <div>
+                    <p className="text-[10px] text-white/40 mb-1">最近指令</p>
+                    <div className="space-y-1 max-h-[60px] overflow-y-auto">
+                      {commandHistory.slice(-5).map((h, i) => (
+                        <div key={i} className="flex items-center gap-1.5 text-[10px]">
+                          {h.success ? (
+                            <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                          ) : (
+                            <XCircle className="h-3 w-3 text-rose-400" />
+                          )}
+                          <span className="text-white/70 truncate">{h.text}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="relative overflow-hidden rounded-2xl glass p-4">
                 <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
                 <div className="mb-3 flex items-center justify-between">
