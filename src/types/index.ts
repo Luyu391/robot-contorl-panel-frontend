@@ -1,4 +1,4 @@
-export type { RobotStatus, JointAngles, CartesianPose, GripperState, RobotState } from './robot';
+export type { RobotStatus, JointAngles, CartesianPose, GripperState, RobotState, ActionFrame, ActionSequence } from './robot';
 export type {
   CommandSource,
   CommandStatus,

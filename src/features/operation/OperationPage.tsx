@@ -15,8 +15,8 @@ import {
 } from '../playground/robotArm3D';
 import { SystemLog, type LogEntry } from '../playground/SystemLog';
 import { quickSafetyCheck } from '../../lib/safety-validator';
-import { parseCommand, executeCommand as apiExecuteCommand } from '../../lib/robot-api';
-import type { SafetyCheck, CommandSuggestion } from '../../types';
+import { parseCommand } from '../../lib/robot-api';
+import type { SafetyCheck, CommandSuggestion, ActionSequence } from '../../types';
 
 type ViewMode = 'default' | 'front' | 'top' | 'side';
 
@@ -73,9 +73,8 @@ export function OperationPage() {
   const [currentFrameId, setCurrentFrameId] = useState(0);
   const [gripperState, setGripperState] = useState(false);
   const [selectedAction, setSelectedAction] = useState('pick_and_place');
-  const [loadedSequence, setLoadedSequence] = useState<any>(null);
+  const [loadedSequence, setLoadedSequence] = useState<ActionSequence | null>(null);
   const [uploadedFile, setUploadedFile] = useState(false);
-  const isDraggingRef = useRef(false);
   const [jointDegrees, setJointDegrees] = useState<number[]>([0, 0, 0, 0, 0]);
 
   const [modelColor, setModelColor] = useState('#6366f1');
@@ -106,8 +105,8 @@ export function OperationPage() {
     fetch('/api/robot/suggestions?context=')
       .then((r) => r.json())
       .then((data: CommandSuggestion[]) => setSuggestions(data))
-      .catch(() => {});
-  }, []);
+      .catch((err) => addLog('error', `加载方案建议失败: ${err}`));
+  }, [addLog]);
 
   // 指令文本变化时的安全检查
   useEffect(() => {
@@ -315,18 +314,6 @@ export function OperationPage() {
     addLog('debug', '模型外观已重置');
   }, [applyModelAppearance]);
 
-  // 暂停播放
-  const pausePlayback = useCallback(() => {
-    setIsPaused(true);
-    gsap.globalTimeline.pause();
-  }, []);
-
-  // 继续播放
-  const resumePlayback = useCallback(() => {
-    setIsPaused(false);
-    gsap.globalTimeline.resume();
-  }, []);
-
   const resetToIdle = useCallback(() => {
     armRef.current?.resetAll(() => {
       setJointConfigs(armRef.current?.getJointConfigs() ?? []);
@@ -492,7 +479,7 @@ export function OperationPage() {
   const handleSelectSuggestion = useCallback((s: CommandSuggestion) => {
     setSelectedSuggestion(s);
     setCommandText(s.text);
-    addLog('info', `选择方案: ${s.name || s.text}`);
+    addLog('info', `选择方案: ${s.text}`);
   }, [addLog]);
 
   // 筛选方案
@@ -549,9 +536,9 @@ export function OperationPage() {
     } catch (e) {
       addLog('error', `加载动作失败: ${e}`);
     }
-  }, []);
+  }, [addLog]);
 
-  useEffect(() => { loadAction('pick_and_place'); }, []);
+  useEffect(() => { loadAction('pick_and_place'); }, [loadAction]);
 
   const playAction = useCallback(async () => {
     const arm = armRef.current;
@@ -655,7 +642,7 @@ export function OperationPage() {
     setIsPaused(true);
     setIsPlaying(false);
     addLog('debug', '动作暂停');
-  }, []);
+  }, [addLog]);
 
   const resumePlayback = useCallback(() => {
     setIsPaused(false);
@@ -720,9 +707,10 @@ export function OperationPage() {
 
       if (frame.io?.digital_output_0 !== undefined) {
         const openness = frame.io.digital_output_0 ? 0 : 1;
+        const gripperClosed = frame.io.digital_output_0;
         tl.call(() => {
           arm.animateGripper(openness, 300);
-          setGripperState(frame.io.digital_output_0);
+          setGripperState(gripperClosed);
         }, [], timeTick - targetTime / 1000);
       }
 

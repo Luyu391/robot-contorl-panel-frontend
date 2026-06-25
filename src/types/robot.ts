@@ -28,3 +28,16 @@ export interface RobotState {
   speed: number;
   lastUpdate: string;
 }
+
+export interface ActionFrame {
+  id: number;
+  time: number;
+  joints: number[];
+  io?: {
+    digital_output_0?: boolean;
+  };
+}
+
+export interface ActionSequence {
+  frames: ActionFrame[];
+}

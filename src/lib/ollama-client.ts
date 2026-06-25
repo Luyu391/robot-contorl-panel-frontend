@@ -267,11 +267,9 @@ function fallbackParse(text: string): ParsedCommand {
 
     // 上升
     '上升': 'raise', '升高': 'raise', '提高': 'raise', '抬': 'raise', 'up': 'raise',
-    'raise': 'raise', 'up': 'raise',
 
     // 下降
     '下降': 'lower', '降低': 'lower', '降': 'lower', '落': 'lower', 'down': 'lower',
-    'lower': 'lower', 'down': 'lower',
 
     // 倾斜
     '倾斜': 'tilt', '歪': 'tilt', '斜': 'tilt', '倾': 'tilt',
